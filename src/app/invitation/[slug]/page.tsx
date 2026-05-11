@@ -56,30 +56,8 @@ export default async function InvitationPage({ params }: InvitationPageProps) {
   }
 
   // Serialize dates for client component
-  const serializedInvitation = {
-    ...invitation,
-    eventDate: invitation.eventDate.toISOString(),
-    akadDate: invitation.akadDate?.toISOString() || null,
-    resepsiDate: invitation.resepsiDate?.toISOString() || null,
-    createdAt: invitation.createdAt.toISOString(),
-    updatedAt: invitation.updatedAt.toISOString(),
-    gallery: invitation.gallery.map((item) => ({
-      ...item,
-      createdAt: item.createdAt.toISOString(),
-    })),
-    comments: invitation.comments.map((comment) => ({
-      ...comment,
-      createdAt: comment.createdAt.toISOString(),
-    })),
-    giftAccounts: invitation.giftAccounts.map((account) => ({
-      ...account,
-      createdAt: account.createdAt.toISOString(),
-    })),
-    loveStories: invitation.loveStories.map((story) => ({
-      ...story,
-      createdAt: story.createdAt.toISOString(),
-    })),
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const serializedInvitation = JSON.parse(JSON.stringify(invitation)) as any;
 
   return <InvitationClient invitation={serializedInvitation} />;
 }
