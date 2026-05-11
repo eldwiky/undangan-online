@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       where: { slug: { startsWith: baseSlug } },
       select: { slug: true },
     });
-    const slug = ensureUniqueSlug(baseSlug, existingSlugs.map((i) => i.slug));
+    const slug = ensureUniqueSlug(baseSlug, existingSlugs.map((i: { slug: string }) => i.slug));
 
     // Auto-generate title
     const title = `Pernikahan ${groomName} & ${brideName}`;
