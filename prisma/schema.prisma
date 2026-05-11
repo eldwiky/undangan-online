@@ -1,0 +1,138 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  password    String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  invitations Invitation[]
+}
+
+model Invitation {
+  id            String         @id @default(uuid())
+  userId        String
+  slug          String         @unique
+  title         String
+
+  // Mempelai Pria
+  groomName       String
+  groomFullName   String?
+  groomPhoto      String?
+  groomFather     String?
+  groomMother     String?
+  groomChildOrder String?       // e.g. "Putra pertama dari"
+
+  // Mempelai Wanita
+  brideName       String
+  brideFullName   String?
+  bridePhoto      String?
+  brideFather     String?
+  brideMother     String?
+  brideChildOrder String?       // e.g. "Putri kedua dari"
+
+  // Ayat / Quote
+  quoteText       String?
+  quoteSource     String?       // e.g. "QS. Ar-Rum: 21"
+  quoteArabic     String?       // Arabic text of the verse
+  quoteLatin      String?       // Latin/transliteration of the verse
+
+  // Acara - Akad
+  akadDate        DateTime?
+  akadTime        String?
+  akadLocation    String?
+  akadLocationName String?
+  akadMapsUrl     String?
+
+  // Acara - Resepsi
+  resepsiDate     DateTime?
+  resepsiTime     String?
+  resepsiLocation String?
+  resepsiLocationName String?
+  resepsiMapsUrl  String?
+
+  // Legacy fields (backward compat)
+  eventDate     DateTime
+  eventTime     String?
+  location      String?
+  locationName  String?
+  mapsUrl       String?
+  description   String?
+
+  // Music
+  musicUrl      String?
+
+  // Hashtag
+  hashtag       String?
+
+  // Template
+  template      String         @default("elegant")
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id])
+  gallery       Gallery[]
+  comments      Comment[]
+  giftAccounts  GiftAccount[]
+  loveStories   LoveStory[]
+
+  @@index([userId])
+  @@index([slug])
+}
+
+model LoveStory {
+  id           String     @id @default(uuid())
+  invitationId String
+  title        String         // e.g. "Pertama Bertemu"
+  date         String?        // e.g. "Januari 2020"
+  description  String
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Gallery {
+  id           String     @id @default(uuid())
+  invitationId String
+  imageUrl     String
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Comment {
+  id           String     @id @default(uuid())
+  invitationId String
+  guestName    String
+  message      String
+  attendance   String     @default("hadir")
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model GiftAccount {
+  id            String     @id @default(uuid())
+  invitationId  String
+  bankName      String
+  accountNumber String
+  accountHolder String
+  qrisUrl       String?
+  createdAt     DateTime   @default(now())
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
