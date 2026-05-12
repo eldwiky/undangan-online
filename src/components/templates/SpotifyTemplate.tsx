@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { SerializedInvitation, SerializedGallery } from "@/app/invitation/[slug]/InvitationClient";
+import type { SerializedInvitation, SerializedGallery } from "@/app/(public)/[slug]/InvitationClient";
 
 interface SpotifyTemplateProps {
   invitation: SerializedInvitation;
@@ -928,3 +928,4 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
     </div>
   );
 }
+

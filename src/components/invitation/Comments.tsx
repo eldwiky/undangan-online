@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { SerializedComment } from "@/app/invitation/[slug]/InvitationClient";
+import { SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 
 interface CommentsProps {
   invitationId: string;
@@ -247,3 +247,4 @@ export default function Comments({
     </section>
   );
 }
+

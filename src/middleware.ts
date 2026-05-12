@@ -14,7 +14,6 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/invitation") ||
     pathname.startsWith("/api/auth")
   ) {
     return NextResponse.next();

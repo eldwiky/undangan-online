@@ -112,7 +112,7 @@ export default function DashboardPage() {
   };
 
   const handleCopyLink = async (slug: string) => {
-    const url = `${window.location.origin}/invitation/${slug}`;
+    const url = `${window.location.origin}/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
       showNotification("Link berhasil disalin ke clipboard!");
@@ -131,7 +131,7 @@ export default function DashboardPage() {
   };
 
   const handlePreview = (slug: string) => {
-    window.open(`/invitation/${slug}`, "_blank");
+    window.open(`/${slug}`, "_blank");
   };
 
   const formatDate = (date: Date | string) => {
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                       </svg>
-                      <span className="truncate max-w-[200px]">/invitation/{invitation.slug}</span>
+                      <span className="truncate max-w-[200px]">/{invitation.slug}</span>
                     </span>
                   </div>
                 </div>

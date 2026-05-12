@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SerializedGallery } from "@/app/invitation/[slug]/InvitationClient";
+import { SerializedGallery } from "@/app/(public)/[slug]/InvitationClient";
 
 interface GalleryProps {
   photos: SerializedGallery[];
@@ -93,3 +93,4 @@ export default function Gallery({ photos }: GalleryProps) {
     </section>
   );
 }
+

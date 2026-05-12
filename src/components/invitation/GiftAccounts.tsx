@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { SerializedGiftAccount } from "@/app/invitation/[slug]/InvitationClient";
+import { SerializedGiftAccount } from "@/app/(public)/[slug]/InvitationClient";
 
 interface GiftAccountsProps {
   accounts: SerializedGiftAccount[];
@@ -79,3 +79,4 @@ export default function GiftAccounts({ accounts }: GiftAccountsProps) {
     </section>
   );
 }
+
