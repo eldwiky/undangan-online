@@ -30,6 +30,7 @@ interface InfoFormData {
   mapsUrl: string;
   description: string;
   hashtag: string;
+  ogImage: string;
   // Akad
   akadDate: string;
   akadTime: string;
@@ -148,6 +149,7 @@ export default function EditInvitationPage() {
     mapsUrl: "",
     description: "",
     hashtag: "",
+    ogImage: "",
     akadDate: "",
     akadTime: "",
     akadLocationName: "",
@@ -214,6 +216,7 @@ export default function EditInvitationPage() {
           mapsUrl: data.mapsUrl || "",
           description: data.description || "",
           hashtag: (data as unknown as { hashtag?: string }).hashtag || "",
+          ogImage: (data as unknown as { ogImage?: string }).ogImage || "",
           akadDate: (data as unknown as { akadDate?: string }).akadDate ? new Date((data as unknown as { akadDate: string }).akadDate).toISOString().split("T")[0] : "",
           akadTime: (data as unknown as { akadTime?: string }).akadTime || "",
           akadLocationName: (data as unknown as { akadLocationName?: string }).akadLocationName || "",
@@ -264,6 +267,7 @@ export default function EditInvitationPage() {
         mapsUrl: infoForm.mapsUrl || undefined,
         description: infoForm.description || undefined,
         hashtag: infoForm.hashtag || undefined,
+        ogImage: infoForm.ogImage || undefined,
         akadDate: infoForm.akadDate ? new Date(infoForm.akadDate).toISOString() : undefined,
         akadTime: infoForm.akadTime || undefined,
         akadLocationName: infoForm.akadLocationName || undefined,
@@ -430,6 +434,29 @@ function InfoAcaraSection({
 }) {
   return (
     <form onSubmit={onSave} className="space-y-6">
+      {/* OG Image - Link Preview */}
+      <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/50">
+        <h4 className="text-sm font-semibold text-gray-700 mb-2">Foto Preview Link (OG Image)</h4>
+        <p className="text-xs text-gray-500 mb-3">Gambar ini akan muncul saat link undangan di-share di WhatsApp/sosmed. Ukuran ideal: 1200x630px</p>
+        {form.ogImage ? (
+          <div className="relative max-w-md">
+            <img src={form.ogImage} alt="OG Preview" className="w-full rounded-lg border border-gray-200 aspect-[1200/630] object-cover" />
+            <button type="button" onClick={() => setForm({...form, ogImage: ""})} className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600 cursor-pointer">✕</button>
+          </div>
+        ) : (
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white text-sm rounded-lg hover:bg-rose-700 transition-colors cursor-pointer">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            Upload Gambar
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+              const file = e.target.files?.[0]; if (!file) return;
+              const fd = new FormData(); fd.append("file", file); fd.append("type", "ogImage");
+              const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+              if (res.ok) { const json = await res.json(); setForm({ ...form, ogImage: json.url }); }
+            }} />
+          </label>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="groomName" className="block text-sm font-medium text-gray-700 mb-1">

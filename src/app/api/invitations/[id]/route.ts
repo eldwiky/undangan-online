@@ -157,6 +157,9 @@ export async function PUT(
     const resepsiLocation = "resepsiLocation" in body ? (body.resepsiLocation || null) : undefined;
     const resepsiMapsUrl = "resepsiMapsUrl" in body ? (body.resepsiMapsUrl || null) : undefined;
 
+    // OG Image
+    const ogImage = "ogImage" in body ? (body.ogImage || null) : undefined;
+
     // Update title based on new names
     const title = `Pernikahan ${groomName} & ${brideName}`;
 
@@ -193,6 +196,7 @@ export async function PUT(
         resepsiLocationName,
         resepsiLocation,
         resepsiMapsUrl,
+        ogImage,
       },
     });
 

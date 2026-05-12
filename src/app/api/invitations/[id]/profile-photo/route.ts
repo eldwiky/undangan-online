@@ -42,8 +42,8 @@ export async function POST(
       return NextResponse.json({ error: "Unsupported Media Type", message: "Format file tidak didukung", statusCode: 415 }, { status: 415 });
     }
 
-    if (!type || !["groomPhoto", "bridePhoto"].includes(type)) {
-      return NextResponse.json({ error: "Validation Error", message: "Type harus groomPhoto atau bridePhoto", statusCode: 400 }, { status: 400 });
+    if (!type || !["groomPhoto", "bridePhoto", "ogImage"].includes(type)) {
+      return NextResponse.json({ error: "Validation Error", message: "Type harus groomPhoto, bridePhoto, atau ogImage", statusCode: 400 }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();

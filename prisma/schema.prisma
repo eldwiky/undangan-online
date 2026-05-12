@@ -76,6 +76,9 @@ model Invitation {
   // Template
   template      String         @default("elegant")
 
+  // OG Image for link preview
+  ogImage       String?       // Custom OG image URL for link preview
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   user          User           @relation(fields: [userId], references: [id])
