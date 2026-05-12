@@ -52,8 +52,24 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Decorative divider */}
+      <div className="relative h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent">
+        <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-white px-2 text-rose-300 text-sm">❀</span>
+      </div>
+
+      {/* Floating floral decorations */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <span className="absolute top-20 left-[5%] text-3xl opacity-[0.07] animate-float">🌸</span>
+        <span className="absolute top-40 right-[8%] text-2xl opacity-[0.06] animate-float-slow">🌿</span>
+        <span className="absolute top-[60%] left-[3%] text-2xl opacity-[0.05] animate-float-reverse">🌺</span>
+        <span className="absolute top-[30%] right-[4%] text-3xl opacity-[0.06] animate-float">🍃</span>
+        <span className="absolute bottom-[20%] left-[10%] text-2xl opacity-[0.05] animate-float-slow">🌷</span>
+        <span className="absolute bottom-[40%] right-[12%] text-xl opacity-[0.06] animate-float-reverse">✿</span>
+        <span className="absolute top-[80%] right-[20%] text-2xl opacity-[0.04] animate-float">🌹</span>
+      </div>
+
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
     </div>

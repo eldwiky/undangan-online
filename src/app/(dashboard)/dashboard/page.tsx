@@ -187,7 +187,7 @@ export default function DashboardPage() {
       )}
 
       {/* Welcome Header */}
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-in-up">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">
@@ -199,18 +199,19 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="group inline-flex items-center px-5 py-3 bg-gradient-to-r from-rose-500 to-amber-500 text-white rounded-xl hover:from-rose-600 hover:to-amber-600 transition-all duration-300 font-semibold shadow-lg shadow-rose-200/50 hover:shadow-xl hover:shadow-rose-300/50 hover:-translate-y-0.5 cursor-pointer"
+            className="group relative inline-flex items-center px-5 py-3 bg-gradient-to-r from-rose-500 to-amber-500 text-white rounded-xl hover:from-rose-600 hover:to-amber-600 transition-all duration-300 font-semibold shadow-lg shadow-rose-200/50 hover:shadow-xl hover:shadow-rose-300/50 hover:-translate-y-0.5 cursor-pointer overflow-hidden"
           >
-            <svg className="w-5 h-5 mr-2 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 animate-shimmer transition-opacity duration-300"></span>
+            <svg className="relative w-5 h-5 mr-2 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Buat Undangan Baru
+            <span className="relative">Buat Undangan Baru</span>
           </button>
         </div>
 
         {/* Stats Card */}
         {!loading && (
-          <div className="mt-6 inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-xl px-5 py-3 shadow-sm">
+          <div className="mt-6 inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-xl px-5 py-3 shadow-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-100 to-amber-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
@@ -251,7 +252,7 @@ export default function DashboardPage() {
 
       {/* Empty State */}
       {!loading && invitations.length === 0 && (
-        <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm animate-fade-in-up">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-rose-100 to-amber-100 flex items-center justify-center mb-6">
             <svg className="w-10 h-10 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
@@ -276,12 +277,13 @@ export default function DashboardPage() {
       {/* Invitation List */}
       {!loading && invitations.length > 0 && (
         <div className="grid gap-4">
-          {invitations.map((invitation) => {
+          {invitations.map((invitation, index) => {
             const tpl = getTemplateStyle(invitation.template || "elegant");
             return (
               <div
                 key={invitation.id}
-                className={`group bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 border-l-4 ${tpl.border} p-5 sm:p-6 hover:shadow-lg hover:shadow-gray-100/80 hover:-translate-y-0.5 transition-all duration-300`}
+                className={`group bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 border-l-4 ${tpl.border} p-5 sm:p-6 hover:shadow-lg hover:shadow-gray-100/80 hover:-translate-y-0.5 transition-all duration-300 opacity-0 animate-fade-in-up`}
+                style={{ animationDelay: `${0.1 * (index + 1)}s` }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   {/* Left side - Info */}
