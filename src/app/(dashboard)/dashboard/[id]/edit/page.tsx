@@ -21,6 +21,8 @@ interface InfoFormData {
   brideFather: string;
   brideMother: string;
   brideChildOrder: string;
+  groomPhoto: string;
+  bridePhoto: string;
   eventDate: string;
   eventTime: string;
   location: string;
@@ -128,6 +130,8 @@ export default function EditInvitationPage() {
     brideFather: "",
     brideMother: "",
     brideChildOrder: "",
+    groomPhoto: "",
+    bridePhoto: "",
     eventDate: "",
     eventTime: "",
     location: "",
@@ -192,6 +196,8 @@ export default function EditInvitationPage() {
           brideFather: (data as unknown as { brideFather?: string }).brideFather || "",
           brideMother: (data as unknown as { brideMother?: string }).brideMother || "",
           brideChildOrder: (data as unknown as { brideChildOrder?: string }).brideChildOrder || "",
+          groomPhoto: (data as unknown as { groomPhoto?: string }).groomPhoto || "",
+          bridePhoto: (data as unknown as { bridePhoto?: string }).bridePhoto || "",
           eventDate: eventDateStr,
           eventTime: data.eventTime || "",
           location: data.location || "",
@@ -366,6 +372,7 @@ export default function EditInvitationPage() {
       <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         {activeTab === "info" && (
           <InfoAcaraSection
+            invitationId={id}
             form={infoForm}
             setForm={setInfoForm}
             onSave={handleSaveInfo}
@@ -399,11 +406,13 @@ export default function EditInvitationPage() {
 // ============================================================
 
 function InfoAcaraSection({
+  invitationId,
   form,
   setForm,
   onSave,
   saving,
 }: {
+  invitationId: string;
   form: InfoFormData;
   setForm: React.Dispatch<React.SetStateAction<InfoFormData>>;
   onSave: (e: React.FormEvent) => void;
@@ -439,6 +448,59 @@ function InfoAcaraSection({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
             placeholder="Contoh: Fatimah"
           />
+        </div>
+      </div>
+
+      {/* Foto Mempelai */}
+      <div className="border-t border-gray-200 pt-6 mt-6">
+        <h4 className="text-md font-semibold text-gray-800 mb-4">Foto Mempelai</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Foto Pria */}
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-700 mb-2">Foto Mempelai Pria</p>
+            {form.groomPhoto ? (
+              <div className="relative inline-block">
+                <img src={form.groomPhoto} alt="Groom" className="w-28 h-28 rounded-full object-cover border-2 border-rose-200 mx-auto" />
+                <button type="button" onClick={() => setForm({ ...form, groomPhoto: "" })} className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 cursor-pointer">✕</button>
+              </div>
+            ) : (
+              <label className="inline-flex flex-col items-center cursor-pointer">
+                <div className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-rose-400 transition-colors">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
+                </div>
+                <span className="text-xs text-gray-500 mt-2">Upload foto</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+                  const file = e.target.files?.[0]; if (!file) return;
+                  const fd = new FormData(); fd.append("file", file); fd.append("type", "groomPhoto");
+                  const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                  if (res.ok) { const json = await res.json(); setForm({ ...form, groomPhoto: json.url }); }
+                }} />
+              </label>
+            )}
+          </div>
+          {/* Foto Wanita */}
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-700 mb-2">Foto Mempelai Wanita</p>
+            {form.bridePhoto ? (
+              <div className="relative inline-block">
+                <img src={form.bridePhoto} alt="Bride" className="w-28 h-28 rounded-full object-cover border-2 border-rose-200 mx-auto" />
+                <button type="button" onClick={() => setForm({ ...form, bridePhoto: "" })} className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 cursor-pointer">✕</button>
+              </div>
+            ) : (
+              <label className="inline-flex flex-col items-center cursor-pointer">
+                <div className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-rose-400 transition-colors">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
+                </div>
+                <span className="text-xs text-gray-500 mt-2">Upload foto</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+                  const file = e.target.files?.[0]; if (!file) return;
+                  const fd = new FormData(); fd.append("file", file); fd.append("type", "bridePhoto");
+                  const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                  if (res.ok) { const json = await res.json(); setForm({ ...form, bridePhoto: json.url }); }
+                }} />
+              </label>
+            )}
+          </div>
         </div>
       </div>
 
