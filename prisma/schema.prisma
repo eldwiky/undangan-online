@@ -83,6 +83,7 @@ model Invitation {
   comments      Comment[]
   giftAccounts  GiftAccount[]
   loveStories   LoveStory[]
+  guests        Guest[]
 
   @@index([userId])
   @@index([slug])
@@ -133,6 +134,18 @@ model GiftAccount {
   qrisUrl       String?
   createdAt     DateTime   @default(now())
   invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Guest {
+  id           String     @id @default(uuid())
+  invitationId String
+  name         String
+  phone        String
+  sent         Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 
   @@index([invitationId])
 }
