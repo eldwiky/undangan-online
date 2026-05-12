@@ -15,6 +15,12 @@ interface TabItem {
 interface InfoFormData {
   groomName: string;
   brideName: string;
+  groomFather: string;
+  groomMother: string;
+  groomChildOrder: string;
+  brideFather: string;
+  brideMother: string;
+  brideChildOrder: string;
   eventDate: string;
   eventTime: string;
   location: string;
@@ -116,6 +122,12 @@ export default function EditInvitationPage() {
   const [infoForm, setInfoForm] = useState<InfoFormData>({
     groomName: "",
     brideName: "",
+    groomFather: "",
+    groomMother: "",
+    groomChildOrder: "",
+    brideFather: "",
+    brideMother: "",
+    brideChildOrder: "",
     eventDate: "",
     eventTime: "",
     location: "",
@@ -174,6 +186,12 @@ export default function EditInvitationPage() {
         setInfoForm({
           groomName: data.groomName || "",
           brideName: data.brideName || "",
+          groomFather: (data as unknown as { groomFather?: string }).groomFather || "",
+          groomMother: (data as unknown as { groomMother?: string }).groomMother || "",
+          groomChildOrder: (data as unknown as { groomChildOrder?: string }).groomChildOrder || "",
+          brideFather: (data as unknown as { brideFather?: string }).brideFather || "",
+          brideMother: (data as unknown as { brideMother?: string }).brideMother || "",
+          brideChildOrder: (data as unknown as { brideChildOrder?: string }).brideChildOrder || "",
           eventDate: eventDateStr,
           eventTime: data.eventTime || "",
           location: data.location || "",
@@ -218,6 +236,12 @@ export default function EditInvitationPage() {
       const payload = {
         groomName: infoForm.groomName,
         brideName: infoForm.brideName,
+        groomFather: infoForm.groomFather || undefined,
+        groomMother: infoForm.groomMother || undefined,
+        groomChildOrder: infoForm.groomChildOrder || undefined,
+        brideFather: infoForm.brideFather || undefined,
+        brideMother: infoForm.brideMother || undefined,
+        brideChildOrder: infoForm.brideChildOrder || undefined,
         eventDate: new Date(infoForm.eventDate).toISOString(),
         eventTime: infoForm.eventTime || undefined,
         location: infoForm.location || undefined,
@@ -415,6 +439,43 @@ function InfoAcaraSection({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
             placeholder="Contoh: Fatimah"
           />
+        </div>
+      </div>
+
+      {/* Orang Tua Mempelai */}
+      <div className="border-t border-gray-200 pt-6 mt-6">
+        <h4 className="text-md font-semibold text-gray-800 mb-4">Orang Tua Mempelai Pria</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="groomFather" className="block text-sm font-medium text-gray-700 mb-1">Nama Ayah</label>
+            <input id="groomFather" type="text" value={form.groomFather} onChange={(e) => setForm({ ...form, groomFather: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: H. Budi Santoso" />
+          </div>
+          <div>
+            <label htmlFor="groomMother" className="block text-sm font-medium text-gray-700 mb-1">Nama Ibu</label>
+            <input id="groomMother" type="text" value={form.groomMother} onChange={(e) => setForm({ ...form, groomMother: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: Hj. Siti Aminah" />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label htmlFor="groomChildOrder" className="block text-sm font-medium text-gray-700 mb-1">Urutan Anak</label>
+          <input id="groomChildOrder" type="text" value={form.groomChildOrder} onChange={(e) => setForm({ ...form, groomChildOrder: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: Putra pertama dari" />
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 pt-6 mt-6">
+        <h4 className="text-md font-semibold text-gray-800 mb-4">Orang Tua Mempelai Wanita</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="brideFather" className="block text-sm font-medium text-gray-700 mb-1">Nama Ayah</label>
+            <input id="brideFather" type="text" value={form.brideFather} onChange={(e) => setForm({ ...form, brideFather: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: H. Ahmad Fauzi" />
+          </div>
+          <div>
+            <label htmlFor="brideMother" className="block text-sm font-medium text-gray-700 mb-1">Nama Ibu</label>
+            <input id="brideMother" type="text" value={form.brideMother} onChange={(e) => setForm({ ...form, brideMother: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: Hj. Fatimah" />
+          </div>
+        </div>
+        <div className="mt-3">
+          <label htmlFor="brideChildOrder" className="block text-sm font-medium text-gray-700 mb-1">Urutan Anak</label>
+          <input id="brideChildOrder" type="text" value={form.brideChildOrder} onChange={(e) => setForm({ ...form, brideChildOrder: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Contoh: Putri kedua dari" />
         </div>
       </div>
 

@@ -134,6 +134,12 @@ export async function PUT(
     // Only update fields that are explicitly present in the body
     // Use undefined (not null) for fields not in body — Prisma skips undefined fields
     const hashtag = "hashtag" in body ? (body.hashtag || null) : undefined;
+    const groomFather = "groomFather" in body ? (body.groomFather || null) : undefined;
+    const groomMother = "groomMother" in body ? (body.groomMother || null) : undefined;
+    const groomChildOrder = "groomChildOrder" in body ? (body.groomChildOrder || null) : undefined;
+    const brideFather = "brideFather" in body ? (body.brideFather || null) : undefined;
+    const brideMother = "brideMother" in body ? (body.brideMother || null) : undefined;
+    const brideChildOrder = "brideChildOrder" in body ? (body.brideChildOrder || null) : undefined;
     const quoteSource = "quoteSource" in body ? (body.quoteSource || null) : undefined;
     const quoteArabic = "quoteArabic" in body ? (body.quoteArabic || null) : undefined;
     const quoteLatin = "quoteLatin" in body ? (body.quoteLatin || null) : undefined;
@@ -160,6 +166,12 @@ export async function PUT(
         groomName,
         brideName,
         title,
+        groomFather,
+        groomMother,
+        groomChildOrder,
+        brideFather,
+        brideMother,
+        brideChildOrder,
         eventDate: new Date(eventDate),
         eventTime: eventTime || null,
         location: location || null,
