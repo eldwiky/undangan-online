@@ -70,7 +70,41 @@ export async function POST(
       );
     }
 
-    // Parse FormData
+    // Check content-type to determine upload method
+    const contentType = request.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      // Client-side upload: file was already uploaded to Cloudinary, just save the URL
+      const body = await request.json();
+      const { musicUrl } = body;
+
+      if (!musicUrl) {
+        return NextResponse.json(
+          {
+            error: "Validation Error",
+            message: "musicUrl wajib disertakan",
+            statusCode: 400,
+          },
+          { status: 400 }
+        );
+      }
+
+      const updatedInvitation = await prisma.invitation.update({
+        where: { id },
+        data: { musicUrl },
+        select: { id: true, musicUrl: true },
+      });
+
+      return NextResponse.json(
+        {
+          message: "Musik berhasil disimpan",
+          data: updatedInvitation,
+        },
+        { status: 201 }
+      );
+    }
+
+    // Server-side upload: parse FormData and upload to Cloudinary
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 

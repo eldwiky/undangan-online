@@ -151,7 +151,43 @@ export async function POST(
       );
     }
 
-    // Parse FormData
+    // Check content-type to determine upload method
+    const contentType = request.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      // Client-side upload: file was already uploaded to Cloudinary, just save the URL
+      const body = await request.json();
+      const { imageUrl } = body;
+
+      if (!imageUrl) {
+        return NextResponse.json(
+          {
+            error: "Validation Error",
+            message: "imageUrl wajib disertakan",
+            statusCode: 400,
+          },
+          { status: 400 }
+        );
+      }
+
+      const galleryItem = await prisma.gallery.create({
+        data: {
+          invitationId: id,
+          imageUrl,
+          order: currentCount,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          message: "Foto berhasil ditambahkan",
+          data: galleryItem,
+        },
+        { status: 201 }
+      );
+    }
+
+    // Server-side upload: parse FormData and upload to Cloudinary
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 

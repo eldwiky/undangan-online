@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { Invitation } from "@/types";
+import { uploadToCloudinary } from "@/lib/client-upload";
 
 type TabKey = "info" | "ayat" | "template" | "galeri" | "musik" | "rekening" | "lovestory" | "kirim";
 
@@ -817,13 +818,20 @@ function GaleriSection({
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const formData = new FormData();
-      formData.append("file", file);
 
       try {
+        // Upload directly to Cloudinary from browser (bypasses Vercel 4.5MB limit)
+        const result = await uploadToCloudinary(
+          file,
+          `web-undangan/gallery/${invitationId}`,
+          "image"
+        );
+
+        // Save the URL to database via lightweight API call
         const res = await fetch(`/api/invitations/${invitationId}/gallery`, {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageUrl: result.secure_url }),
         });
 
         if (!res.ok) {
@@ -1005,18 +1013,25 @@ function MusikSection({
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
+      // Upload directly to Cloudinary from browser (bypasses Vercel 4.5MB limit)
+      const result = await uploadToCloudinary(
+        file,
+        `web-undangan/music/${invitationId}`,
+        "video"
+      );
+
+      // Save the URL to database via lightweight API call
       const res = await fetch(`/api/invitations/${invitationId}/music`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ musicUrl: result.secure_url }),
       });
 
       if (!res.ok) {
         const json = await res.json();
-        throw new Error(json.message || "Gagal mengupload musik");
+        throw new Error(json.message || "Gagal menyimpan musik");
       }
 
       const json = await res.json();
