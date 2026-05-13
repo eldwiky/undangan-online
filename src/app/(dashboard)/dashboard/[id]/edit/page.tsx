@@ -35,12 +35,14 @@ interface InfoFormData {
   // Akad
   akadDate: string;
   akadTime: string;
+  akadTimeEnd: string;
   akadLocationName: string;
   akadLocation: string;
   akadMapsUrl: string;
   // Resepsi
   resepsiDate: string;
   resepsiTime: string;
+  resepsiTimeEnd: string;
   resepsiLocationName: string;
   resepsiLocation: string;
   resepsiMapsUrl: string;
@@ -153,11 +155,13 @@ export default function EditInvitationPage() {
     ogImage: "",
     akadDate: "",
     akadTime: "",
+    akadTimeEnd: "",
     akadLocationName: "",
     akadLocation: "",
     akadMapsUrl: "",
     resepsiDate: "",
     resepsiTime: "",
+    resepsiTimeEnd: "",
     resepsiLocationName: "",
     resepsiLocation: "",
     resepsiMapsUrl: "",
@@ -220,11 +224,13 @@ export default function EditInvitationPage() {
           ogImage: (data as unknown as { ogImage?: string }).ogImage || "",
           akadDate: (data as unknown as { akadDate?: string }).akadDate ? new Date((data as unknown as { akadDate: string }).akadDate).toISOString().split("T")[0] : "",
           akadTime: (data as unknown as { akadTime?: string }).akadTime || "",
+          akadTimeEnd: (data as unknown as { akadTimeEnd?: string }).akadTimeEnd || "",
           akadLocationName: (data as unknown as { akadLocationName?: string }).akadLocationName || "",
           akadLocation: (data as unknown as { akadLocation?: string }).akadLocation || "",
           akadMapsUrl: (data as unknown as { akadMapsUrl?: string }).akadMapsUrl || "",
           resepsiDate: (data as unknown as { resepsiDate?: string }).resepsiDate ? new Date((data as unknown as { resepsiDate: string }).resepsiDate).toISOString().split("T")[0] : "",
           resepsiTime: (data as unknown as { resepsiTime?: string }).resepsiTime || "",
+          resepsiTimeEnd: (data as unknown as { resepsiTimeEnd?: string }).resepsiTimeEnd || "",
           resepsiLocationName: (data as unknown as { resepsiLocationName?: string }).resepsiLocationName || "",
           resepsiLocation: (data as unknown as { resepsiLocation?: string }).resepsiLocation || "",
           resepsiMapsUrl: (data as unknown as { resepsiMapsUrl?: string }).resepsiMapsUrl || "",
@@ -271,11 +277,13 @@ export default function EditInvitationPage() {
         ogImage: infoForm.ogImage || undefined,
         akadDate: infoForm.akadDate ? new Date(infoForm.akadDate).toISOString() : undefined,
         akadTime: infoForm.akadTime || undefined,
+        akadTimeEnd: infoForm.akadTimeEnd || undefined,
         akadLocationName: infoForm.akadLocationName || undefined,
         akadLocation: infoForm.akadLocation || undefined,
         akadMapsUrl: infoForm.akadMapsUrl || undefined,
         resepsiDate: infoForm.resepsiDate ? new Date(infoForm.resepsiDate).toISOString() : undefined,
         resepsiTime: infoForm.resepsiTime || undefined,
+        resepsiTimeEnd: infoForm.resepsiTimeEnd || undefined,
         resepsiLocationName: infoForm.resepsiLocationName || undefined,
         resepsiLocation: infoForm.resepsiLocation || undefined,
         resepsiMapsUrl: infoForm.resepsiMapsUrl || undefined,
@@ -673,7 +681,16 @@ function InfoAcaraSection({
           </div>
           <div>
             <label htmlFor="akadTime" className="block text-sm font-medium text-gray-700 mb-1">Waktu Akad</label>
-            <input id="akadTime" type="time" value={form.akadTime} onChange={(e) => setForm({ ...form, akadTime: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Mulai</label>
+                <input id="akadTime" type="time" value={form.akadTime} onChange={(e) => setForm({ ...form, akadTime: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Selesai</label>
+                <input id="akadTimeEnd" type="time" value={form.akadTimeEnd} onChange={(e) => setForm({ ...form, akadTimeEnd: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+              </div>
+            </div>
           </div>
         </div>
         <div className="mt-3">
@@ -700,7 +717,16 @@ function InfoAcaraSection({
           </div>
           <div>
             <label htmlFor="resepsiTime" className="block text-sm font-medium text-gray-700 mb-1">Waktu Resepsi</label>
-            <input id="resepsiTime" type="time" value={form.resepsiTime} onChange={(e) => setForm({ ...form, resepsiTime: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Mulai</label>
+                <input id="resepsiTime" type="time" value={form.resepsiTime} onChange={(e) => setForm({ ...form, resepsiTime: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Selesai</label>
+                <input id="resepsiTimeEnd" type="time" value={form.resepsiTimeEnd} onChange={(e) => setForm({ ...form, resepsiTimeEnd: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+              </div>
+            </div>
           </div>
         </div>
         <div className="mt-3">

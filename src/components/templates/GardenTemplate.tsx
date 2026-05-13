@@ -81,17 +81,30 @@ function CoupleSketch({ className = "" }: { className?: string }) {
 // ICS file download helper
 function downloadICS(invitation: SerializedInvitation) {
   const title = `Pernikahan ${invitation.groomName} & ${invitation.brideName}`;
-  const eventDate = invitation.akadDate || invitation.eventDate;
+  const eventDate = invitation.resepsiDate || invitation.akadDate || invitation.eventDate;
   const date = new Date(eventDate);
   
+  // Use resepsi time if available, otherwise akad time
+  const startTime = invitation.resepsiTime || invitation.akadTime || "08:00";
+  const endTime = invitation.resepsiTimeEnd || invitation.akadTimeEnd || "12:00";
+
+  // Parse date + time
+  const [startH, startM] = startTime.split(":").map(Number);
+  const [endH, endM] = endTime.split(":").map(Number);
+
+  const startDate = new Date(date);
+  startDate.setHours(startH, startM, 0);
+
+  const endDateObj = new Date(date);
+  endDateObj.setHours(endH, endM, 0);
+
   // Format: YYYYMMDDTHHmmss
   const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   
-  const startStr = formatDate(date);
-  const endDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
-  const endStr = formatDate(endDate);
+  const startStr = formatDate(startDate);
+  const endStr = formatDate(endDateObj);
   
-  const location = invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || "";
+  const location = invitation.resepsiLocationName || invitation.akadLocationName || invitation.locationName || "";
   const description = `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`;
 
   const icsContent = [
@@ -704,7 +717,7 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
                   </p>
                 )}
                 {invitation.akadTime && (
-                  <p className="text-gray-500 mt-1">Pukul {invitation.akadTime}</p>
+                  <p className="text-gray-500 mt-1">{invitation.akadTime}{invitation.akadTimeEnd ? ` - ${invitation.akadTimeEnd}` : ""} WIB</p>
                 )}
                 {invitation.akadLocationName && (
                   <p className="text-gray-700 font-medium mt-4">{invitation.akadLocationName}</p>
@@ -745,7 +758,7 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
                   </p>
                 )}
                 {invitation.resepsiTime && (
-                  <p className="text-gray-500 mt-1">Pukul {invitation.resepsiTime}</p>
+                  <p className="text-gray-500 mt-1">{invitation.resepsiTime}{invitation.resepsiTimeEnd ? ` - ${invitation.resepsiTimeEnd}` : ""} WIB</p>
                 )}
                 {invitation.resepsiLocationName && (
                   <p className="text-gray-700 font-medium mt-4">{invitation.resepsiLocationName}</p>
@@ -781,7 +794,7 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
                   day: "numeric",
                 })}
               </p>
-              {invitation.eventTime && <p className="text-gray-500 mt-1">Pukul {invitation.eventTime}</p>}
+              {invitation.eventTime && <p className="text-gray-500 mt-1">{invitation.eventTime} WIB</p>}
               {invitation.locationName && <p className="text-gray-700 font-medium mt-4">{invitation.locationName}</p>}
               {invitation.location && <p className="text-sm text-gray-500 mt-1">{invitation.location}</p>}
               {invitation.mapsUrl && (

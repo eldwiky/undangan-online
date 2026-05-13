@@ -48,6 +48,7 @@ model Invitation {
   // Acara - Akad
   akadDate        DateTime?
   akadTime        String?
+  akadTimeEnd     String?
   akadLocation    String?
   akadLocationName String?
   akadMapsUrl     String?
@@ -55,6 +56,7 @@ model Invitation {
   // Acara - Resepsi
   resepsiDate     DateTime?
   resepsiTime     String?
+  resepsiTimeEnd  String?
   resepsiLocation String?
   resepsiLocationName String?
   resepsiMapsUrl  String?

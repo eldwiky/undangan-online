@@ -148,11 +148,13 @@ export async function PUT(
     // Akad & Resepsi — only update if present in body
     const akadDate = "akadDate" in body ? (body.akadDate ? new Date(body.akadDate) : null) : undefined;
     const akadTime = "akadTime" in body ? (body.akadTime || null) : undefined;
+    const akadTimeEnd = "akadTimeEnd" in body ? (body.akadTimeEnd || null) : undefined;
     const akadLocationName = "akadLocationName" in body ? (body.akadLocationName || null) : undefined;
     const akadLocation = "akadLocation" in body ? (body.akadLocation || null) : undefined;
     const akadMapsUrl = "akadMapsUrl" in body ? (body.akadMapsUrl || null) : undefined;
     const resepsiDate = "resepsiDate" in body ? (body.resepsiDate ? new Date(body.resepsiDate) : null) : undefined;
     const resepsiTime = "resepsiTime" in body ? (body.resepsiTime || null) : undefined;
+    const resepsiTimeEnd = "resepsiTimeEnd" in body ? (body.resepsiTimeEnd || null) : undefined;
     const resepsiLocationName = "resepsiLocationName" in body ? (body.resepsiLocationName || null) : undefined;
     const resepsiLocation = "resepsiLocation" in body ? (body.resepsiLocation || null) : undefined;
     const resepsiMapsUrl = "resepsiMapsUrl" in body ? (body.resepsiMapsUrl || null) : undefined;
@@ -188,11 +190,13 @@ export async function PUT(
         quoteText,
         akadDate,
         akadTime,
+        akadTimeEnd,
         akadLocationName,
         akadLocation,
         akadMapsUrl,
         resepsiDate,
         resepsiTime,
+        resepsiTimeEnd,
         resepsiLocationName,
         resepsiLocation,
         resepsiMapsUrl,

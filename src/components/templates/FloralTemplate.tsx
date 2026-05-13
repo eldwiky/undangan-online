@@ -34,17 +34,30 @@ const stagger = {
 // ICS file download helper
 function downloadICS(invitation: SerializedInvitation) {
   const title = `Pernikahan ${invitation.groomName} & ${invitation.brideName}`;
-  const eventDate = invitation.akadDate || invitation.eventDate;
+  const eventDate = invitation.resepsiDate || invitation.akadDate || invitation.eventDate;
   const date = new Date(eventDate);
   
+  // Use resepsi time if available, otherwise akad time
+  const startTime = invitation.resepsiTime || invitation.akadTime || "08:00";
+  const endTime = invitation.resepsiTimeEnd || invitation.akadTimeEnd || "12:00";
+
+  // Parse date + time
+  const [startH, startM] = startTime.split(":").map(Number);
+  const [endH, endM] = endTime.split(":").map(Number);
+
+  const startDate = new Date(date);
+  startDate.setHours(startH, startM, 0);
+
+  const endDateObj = new Date(date);
+  endDateObj.setHours(endH, endM, 0);
+
   // Format: YYYYMMDDTHHmmss
   const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   
-  const startStr = formatDate(date);
-  const endDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
-  const endStr = formatDate(endDate);
+  const startStr = formatDate(startDate);
+  const endStr = formatDate(endDateObj);
   
-  const location = invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || "";
+  const location = invitation.resepsiLocationName || invitation.akadLocationName || invitation.locationName || "";
   const description = `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`;
 
   const icsContent = [
@@ -628,7 +641,7 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
                       {new Date(invitation.akadDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                     </p>
                   )}
-                  {invitation.akadTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">Pukul {invitation.akadTime}</p>}
+                  {invitation.akadTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.akadTime}{invitation.akadTimeEnd ? ` - ${invitation.akadTimeEnd}` : ""} WIB</p>}
                   {invitation.akadLocationName && <p className="text-[#f5e6d3] font-medium mt-3">{invitation.akadLocationName}</p>}
                   {invitation.akadLocation && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.akadLocation}</p>}
                   {invitation.akadMapsUrl && (
@@ -650,7 +663,7 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
                       {new Date(invitation.resepsiDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                     </p>
                   )}
-                  {invitation.resepsiTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">Pukul {invitation.resepsiTime}</p>}
+                  {invitation.resepsiTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.resepsiTime}{invitation.resepsiTimeEnd ? ` - ${invitation.resepsiTimeEnd}` : ""} WIB</p>}
                   {invitation.resepsiLocationName && <p className="text-[#f5e6d3] font-medium mt-3">{invitation.resepsiLocationName}</p>}
                   {invitation.resepsiLocation && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.resepsiLocation}</p>}
                   {invitation.resepsiMapsUrl && (
@@ -668,7 +681,7 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
                 <p className="text-[#f5e6d3]/80">
                   {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                 </p>
-                {invitation.eventTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">Pukul {invitation.eventTime}</p>}
+                {invitation.eventTime && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.eventTime} WIB</p>}
                 {invitation.locationName && <p className="text-[#f5e6d3] font-medium mt-3">{invitation.locationName}</p>}
                 {invitation.location && <p className="text-[#f5e6d3]/60 text-sm mt-1">{invitation.location}</p>}
                 {invitation.mapsUrl && (
