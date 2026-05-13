@@ -51,8 +51,9 @@ function CoupleSketch({ className = "" }: { className?: string }) {
       
       {/* Bride - right side */}
       <path d="M250 170 C250 150 255 135 260 125 C265 115 270 110 275 105 C280 100 280 90 275 80 C270 70 260 65 255 65 C250 65 240 70 235 80 C230 90 230 100 235 105 C240 110 245 115 250 125" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Bride veil/hijab */}
-      <path d="M235 80 C225 85 215 95 210 110 C205 125 205 140 210 155 C215 170 225 180 235 185 M275 80 C285 85 295 95 300 110 C305 125 305 140 300 155 C295 170 285 180 275 185" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.7"/>
+      {/* Bride hair */}
+      <path d="M235 75 C230 70 228 60 232 52 C236 44 245 40 255 40 C265 40 274 44 278 52 C282 60 280 70 275 75" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.7"/>
+      <path d="M232 65 C228 75 225 90 228 100 M278 65 C282 75 285 90 282 100" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
       {/* Bride body/dress */}
       <path d="M220 185 C210 220 200 260 190 300 C180 340 175 370 175 400 M290 185 C300 220 310 260 320 300 C330 340 335 370 335 400" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       {/* Dress flow */}
