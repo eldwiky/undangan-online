@@ -31,26 +31,46 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-// Google Calendar URL helper
-function getGoogleCalendarUrl(invitation: SerializedInvitation): string {
-  const title = encodeURIComponent(`Pernikahan ${invitation.groomName} & ${invitation.brideName}`);
-  
+// ICS file download helper
+function downloadICS(invitation: SerializedInvitation) {
+  const title = `Pernikahan ${invitation.groomName} & ${invitation.brideName}`;
   const eventDate = invitation.akadDate || invitation.eventDate;
   const date = new Date(eventDate);
   
-  const startStr = date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  // Format: YYYYMMDDTHHmmss
+  const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  
+  const startStr = formatDate(date);
   const endDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
-  const endStr = endDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const endStr = formatDate(endDate);
   
-  const location = encodeURIComponent(
-    invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || ""
-  );
-  
-  const details = encodeURIComponent(
-    `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`
-  );
-  
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}`;
+  const location = invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || "";
+  const description = `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`;
+
+  const icsContent = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Web Undangan//ID",
+    "BEGIN:VEVENT",
+    `DTSTART:${startStr}`,
+    `DTEND:${endStr}`,
+    `SUMMARY:${title}`,
+    `DESCRIPTION:${description}`,
+    `LOCATION:${location}`,
+    "STATUS:CONFIRMED",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+
+  const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${invitation.groomName}-${invitation.brideName}-wedding.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 export default function FloralTemplate({ invitation, guestName }: FloralTemplateProps) {
@@ -661,17 +681,15 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
 
             {/* Save the Date button */}
             <motion.div variants={fadeInUp} className="text-center mt-8">
-              <a
-                href={getGoogleCalendarUrl(invitation)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#8B3A62] text-[#f5e6d3] rounded-full font-medium hover:bg-[#a04472] transition-colors"
+              <button
+                onClick={() => downloadICS(invitation)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#8B3A62] text-[#f5e6d3] rounded-full font-medium hover:bg-[#a04472] transition-colors cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Save the Date
-              </a>
+              </button>
             </motion.div>
           </motion.div>
         </section>
