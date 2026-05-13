@@ -1462,11 +1462,11 @@ function TemplateSection({
       colors: "bg-gradient-to-br from-[#faf7f2] to-[#f0e8df]",
     },
     {
-      id: "galaxy",
-      name: "Galaxy",
-      description: "Tema celestial malam berbintang dengan animasi bintang, nebula gradient, dan aksen emas",
-      preview: "✨",
-      colors: "bg-gradient-to-br from-[#0a0e1a] to-[#1a1040]",
+      id: "garden",
+      name: "Garden",
+      description: "Tema taman romantis ala Pinterest dengan warna sage green, bunga daisy, dan font script elegan",
+      preview: "🌼",
+      colors: "bg-gradient-to-br from-[#5c6b4f] to-[#4a5940]",
     },
   ];
 

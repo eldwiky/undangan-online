@@ -9,7 +9,7 @@ import Comments from "@/components/invitation/Comments";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
 import SpotifyTemplate from "@/components/templates/SpotifyTemplate";
 import FloralTemplate from "@/components/templates/FloralTemplate";
-import GalaxyTemplate from "@/components/templates/GalaxyTemplate";
+import GardenTemplate from "@/components/templates/GardenTemplate";
 
 // Serialized types
 export interface SerializedGallery {
@@ -269,9 +269,9 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
     return <FloralTemplate invitation={invitation} guestName={guestName} />;
   }
 
-  // Template routing: render Galaxy template if selected
-  if (invitation.template === "galaxy") {
-    return <GalaxyTemplate invitation={invitation} guestName={guestName} />;
+  // Template routing: render Garden template if selected
+  if (invitation.template === "garden") {
+    return <GardenTemplate invitation={invitation} guestName={guestName} />;
   }
 
   if (!isOpened) {
