@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   // Allow public GET requests to comments endpoint
   if (
     pathname.match(/^\/api\/invitations\/[^/]+\/comments$/) &&
-    request.method === "GET"
+    (request.method === "GET" || request.method === "POST")
   ) {
     return NextResponse.next();
   }
