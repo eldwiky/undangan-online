@@ -31,59 +31,64 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-// ICS file download helper
-function downloadICS(invitation: SerializedInvitation) {
+// Smart Save the Date - Google Calendar for Android, ICS for iOS/Desktop
+function saveTheDate(invitation: SerializedInvitation) {
   const title = `Pernikahan ${invitation.groomName} & ${invitation.brideName}`;
   const eventDate = invitation.resepsiDate || invitation.akadDate || invitation.eventDate;
   const date = new Date(eventDate);
   
-  // Use resepsi time if available, otherwise akad time
   const startTime = invitation.resepsiTime || invitation.akadTime || "08:00";
   const endTime = invitation.resepsiTimeEnd || invitation.akadTimeEnd || "12:00";
-
-  // Parse date + time
+  
   const [startH, startM] = startTime.split(":").map(Number);
   const [endH, endM] = endTime.split(":").map(Number);
-
-  const startDate = new Date(date);
-  startDate.setHours(startH, startM, 0);
-
-  const endDateObj = new Date(date);
-  endDateObj.setHours(endH, endM, 0);
-
-  // Format: YYYYMMDDTHHmmss
-  const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   
-  const startStr = formatDate(startDate);
-  const endStr = formatDate(endDateObj);
+  const startDate = new Date(date);
+  startDate.setHours(startH, startM, 0, 0);
+  
+  const endDateObj = new Date(date);
+  endDateObj.setHours(endH, endM, 0, 0);
   
   const location = invitation.resepsiLocationName || invitation.akadLocationName || invitation.locationName || "";
   const description = `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`;
 
-  const icsContent = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Web Undangan//ID",
-    "BEGIN:VEVENT",
-    `DTSTART:${startStr}`,
-    `DTEND:${endStr}`,
-    `SUMMARY:${title}`,
-    `DESCRIPTION:${description}`,
-    `LOCATION:${location}`,
-    "STATUS:CONFIRMED",
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ].join("\r\n");
+  // Detect if Android
+  const isAndroid = /android/i.test(navigator.userAgent);
+  
+  if (isAndroid) {
+    // Android: Use Google Calendar intent (opens app directly)
+    const formatGCal = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatGCal(startDate)}/${formatGCal(endDateObj)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
+    window.open(gcalUrl, "_blank");
+  } else {
+    // iOS & Desktop: Download .ics file (iOS opens Calendar app directly)
+    const formatICS = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Web Undangan//ID",
+      "BEGIN:VEVENT",
+      `DTSTART:${formatICS(startDate)}`,
+      `DTEND:${formatICS(endDateObj)}`,
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${description}`,
+      `LOCATION:${location}`,
+      "STATUS:CONFIRMED",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
 
-  const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${invitation.groomName}-${invitation.brideName}-wedding.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${invitation.groomName}-${invitation.brideName}-wedding.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 }
 
 export default function SpotifyTemplate({ invitation, guestName }: SpotifyTemplateProps) {
@@ -656,7 +661,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             {/* Save the Date button */}
             <motion.div variants={fadeInUp} className="text-center mt-8">
               <button
-                onClick={() => downloadICS(invitation)}
+                onClick={() => saveTheDate(invitation)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#1DB954] text-black rounded-full font-bold hover:bg-[#1ed760] transition-colors cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
