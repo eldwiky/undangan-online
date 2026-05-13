@@ -31,6 +31,28 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
+// Google Calendar URL helper
+function getGoogleCalendarUrl(invitation: SerializedInvitation): string {
+  const title = encodeURIComponent(`Pernikahan ${invitation.groomName} & ${invitation.brideName}`);
+  
+  const eventDate = invitation.akadDate || invitation.eventDate;
+  const date = new Date(eventDate);
+  
+  const startStr = date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const endDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
+  const endStr = endDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  
+  const location = encodeURIComponent(
+    invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || ""
+  );
+  
+  const details = encodeURIComponent(
+    `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`
+  );
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}`;
+}
+
 export default function SpotifyTemplate({ invitation, guestName }: SpotifyTemplateProps) {
   const [isOpened, setIsOpened] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -597,6 +619,21 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                 )}
               </motion.div>
             )}
+
+            {/* Save the Date button */}
+            <motion.div variants={fadeInUp} className="text-center mt-8">
+              <a
+                href={getGoogleCalendarUrl(invitation)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#1DB954] text-black rounded-full font-bold hover:bg-[#1ed760] transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Save the Date
+              </a>
+            </motion.div>
           </motion.div>
         </section>
 

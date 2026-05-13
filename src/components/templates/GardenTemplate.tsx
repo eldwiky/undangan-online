@@ -38,6 +38,67 @@ function calcCountdown(eventDate: Date) {
   };
 }
 
+// Couple sketch SVG decoration
+function CoupleSketch({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Groom - left side */}
+      <path d="M150 180 C150 160 160 140 170 130 C180 120 190 115 195 110 C200 105 200 95 195 85 C190 75 180 70 175 70 C170 70 160 75 155 85 C150 95 150 105 155 110 C145 115 135 125 130 140 C125 155 125 170 130 185 L130 350" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Groom body */}
+      <path d="M130 185 C125 200 120 220 120 240 L120 380 M180 185 C185 200 190 220 190 240 L190 380" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Groom arm */}
+      <path d="M180 220 C190 225 200 230 210 235" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      
+      {/* Bride - right side */}
+      <path d="M250 170 C250 150 255 135 260 125 C265 115 270 110 275 105 C280 100 280 90 275 80 C270 70 260 65 255 65 C250 65 240 70 235 80 C230 90 230 100 235 105 C240 110 245 115 250 125" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Bride veil/hijab */}
+      <path d="M235 80 C225 85 215 95 210 110 C205 125 205 140 210 155 C215 170 225 180 235 185 M275 80 C285 85 295 95 300 110 C305 125 305 140 300 155 C295 170 285 180 275 185" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.7"/>
+      {/* Bride body/dress */}
+      <path d="M220 185 C210 220 200 260 190 300 C180 340 175 370 175 400 M290 185 C300 220 310 260 320 300 C330 340 335 370 335 400" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Dress flow */}
+      <path d="M175 400 C200 405 230 410 255 410 C280 410 310 405 335 400" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Couple holding hands */}
+      <path d="M180 235 C195 240 210 240 225 235" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      
+      {/* Flowers at bottom */}
+      <circle cx="160" cy="430" r="8" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      <circle cx="160" cy="430" r="3" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      <circle cx="200" cy="445" r="10" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+      <circle cx="200" cy="445" r="4" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+      <circle cx="250" cy="435" r="8" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      <circle cx="250" cy="435" r="3" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      <circle cx="300" cy="440" r="9" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+      <circle cx="300" cy="440" r="3.5" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+      
+      {/* Leaves */}
+      <path d="M140 420 C145 415 155 412 160 415 C155 418 145 420 140 420Z" stroke="currentColor" strokeWidth="0.8" opacity="0.4"/>
+      <path d="M280 425 C285 420 295 417 300 420 C295 423 285 425 280 425Z" stroke="currentColor" strokeWidth="0.8" opacity="0.4"/>
+    </svg>
+  );
+}
+
+// Google Calendar URL helper
+function getGoogleCalendarUrl(invitation: SerializedInvitation): string {
+  const title = encodeURIComponent(`Pernikahan ${invitation.groomName} & ${invitation.brideName}`);
+  
+  const eventDate = invitation.akadDate || invitation.eventDate;
+  const date = new Date(eventDate);
+  
+  const startStr = date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const endDate = new Date(date.getTime() + 3 * 60 * 60 * 1000);
+  const endStr = endDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  
+  const location = encodeURIComponent(
+    invitation.akadLocationName || invitation.resepsiLocationName || invitation.locationName || ""
+  );
+  
+  const details = encodeURIComponent(
+    `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`
+  );
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}`;
+}
+
 // Wavy section divider
 function WavyDivider() {
   return (
@@ -277,6 +338,9 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
   if (!isOpened) {
     return (
       <div className="min-h-screen bg-[#5c6b4f] flex flex-col items-center justify-center px-6 text-center relative overflow-hidden">
+        {/* Couple sketch background decoration */}
+        <CoupleSketch className="absolute inset-0 w-full h-full text-white/15 pointer-events-none" />
+
         {/* Background decorations */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 text-6xl">🌼</div>
@@ -365,6 +429,9 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#4a5940] via-[#5c6b4f] to-[#6b7a5e]" />
+
+        {/* Couple sketch background decoration */}
+        <CoupleSketch className="absolute inset-0 w-full h-full text-white/[0.08] pointer-events-none" />
 
         {/* Decorative elements */}
         <div className="absolute top-8 left-6 text-4xl opacity-30 animate-float">🌼</div>
@@ -708,6 +775,21 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
               )}
             </motion.div>
           )}
+
+          {/* Save the Date button */}
+          <motion.div variants={fadeUp} className="text-center mt-8">
+            <a
+              href={getGoogleCalendarUrl(invitation)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#5c6b4f] rounded-full shadow-md hover:shadow-lg transition-all font-medium"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Save the Date
+            </a>
+          </motion.div>
         </motion.div>
       </section>
 
