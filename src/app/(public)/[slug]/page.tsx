@@ -3,6 +3,10 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import InvitationClient from "./InvitationClient";
 
+// Force dynamic rendering - no caching
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface InvitationPageProps {
   params: Promise<{ slug: string }>;
 }

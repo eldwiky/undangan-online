@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { commentSchema, sanitizeInput } from "@/lib/validators";
 import { checkRateLimit } from "@/lib/rate-limiter";
 
+// Force dynamic - never cache this API
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // GET /api/invitations/[id]/comments - List comments (paginated, public)
 export async function GET(
   request: Request,
