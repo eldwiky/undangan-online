@@ -113,7 +113,7 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/invitations/${invitation.id}/comments?page=1`);
+        const res = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
           if (json.data && Array.isArray(json.data)) {
