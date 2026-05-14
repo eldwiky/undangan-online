@@ -224,10 +224,16 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
         body: JSON.stringify({ guestName: commentName, message: commentMessage, attendance: commentAttendance }),
       });
       if (res.ok) {
-        const json = await res.json();
-        setComments((prev) => [json.data, ...prev]);
         setCommentName("");
         setCommentMessage("");
+        // Immediately fetch fresh comments
+        const freshRes = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`);
+        if (freshRes.ok) {
+          const freshJson = await freshRes.json();
+          if (freshJson.data && Array.isArray(freshJson.data)) {
+            setComments(freshJson.data);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to submit comment", err);

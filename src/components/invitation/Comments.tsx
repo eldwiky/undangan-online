@@ -90,11 +90,18 @@ export default function Comments({
       }
 
       const data = await res.json();
-      setComments((prev) => [data.data, ...prev]);
       setForm({ guestName: "", message: "", attendance: "hadir" });
       setErrors({});
       setSubmitSuccess(true);
       setTimeout(() => setSubmitSuccess(false), 3000);
+      // Immediately fetch fresh comments
+      const freshRes = await fetch(`/api/invitations/${invitationId}/comments?page=1&_t=${Date.now()}`);
+      if (freshRes.ok) {
+        const freshJson = await freshRes.json();
+        if (freshJson.data && Array.isArray(freshJson.data)) {
+          setComments(freshJson.data);
+        }
+      }
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Terjadi kesalahan"

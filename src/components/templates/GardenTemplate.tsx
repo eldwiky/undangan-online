@@ -374,10 +374,16 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
         }),
       });
       if (res.ok) {
-        const json = await res.json();
-        setComments((prev) => [json.data, ...prev]);
         setCommentName("");
         setCommentMessage("");
+        // Immediately fetch fresh comments to ensure correct format
+        const freshRes = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`);
+        if (freshRes.ok) {
+          const freshJson = await freshRes.json();
+          if (freshJson.data && Array.isArray(freshJson.data)) {
+            setComments(freshJson.data);
+          }
+        }
       }
     } catch {
       // silent fail
