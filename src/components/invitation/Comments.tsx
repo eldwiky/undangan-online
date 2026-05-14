@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 
@@ -35,6 +35,25 @@ export default function Comments({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Auto-poll comments every 5 seconds for near real-time updates
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/invitations/${invitationId}/comments?page=1`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data)) {
+            setComments(json.data);
+          }
+        }
+      } catch {
+        // Silent fail - don't disrupt UX
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [invitationId]);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};

@@ -308,6 +308,25 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Auto-poll comments every 5 seconds for near real-time updates
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/invitations/${invitation.id}/comments?page=1`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data)) {
+            setComments(json.data);
+          }
+        }
+      } catch {
+        // Silent fail - don't disrupt UX
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [invitation.id]);
+
   // Audio setup
   useEffect(() => {
     if (invitation.musicUrl && isOpened) {
