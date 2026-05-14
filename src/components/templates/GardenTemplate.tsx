@@ -310,9 +310,14 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
 
   // Auto-poll comments every 5 seconds for near real-time updates
   useEffect(() => {
+    if (!isOpened) return; // Only poll after invitation is opened
+    
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`);
+        const res = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
         if (res.ok) {
           const json = await res.json();
           if (json.data && Array.isArray(json.data)) {
@@ -325,7 +330,7 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [invitation.id]);
+  }, [invitation.id, isOpened]);
 
   // Audio setup
   useEffect(() => {
@@ -377,7 +382,10 @@ export default function GardenTemplate({ invitation, guestName }: GardenTemplate
         setCommentName("");
         setCommentMessage("");
         // Immediately fetch fresh comments to ensure correct format
-        const freshRes = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`);
+        const freshRes = await fetch(`/api/invitations/${invitation.id}/comments?page=1&_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
         if (freshRes.ok) {
           const freshJson = await freshRes.json();
           if (freshJson.data && Array.isArray(freshJson.data)) {
