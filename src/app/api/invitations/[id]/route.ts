@@ -115,6 +115,19 @@ export async function PUT(
 
     const body = await request.json();
 
+    // Handle messageTemplate-only update (partial update)
+    if ("messageTemplate" in body && Object.keys(body).length === 1) {
+      const messageTemplate = body.messageTemplate || null;
+      const updatedInvitation = await prisma.invitation.update({
+        where: { id },
+        data: { messageTemplate },
+      });
+      return NextResponse.json({
+        message: "Template pesan berhasil diperbarui",
+        data: updatedInvitation,
+      });
+    }
+
     const result = invitationSchema.safeParse(body);
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
@@ -162,6 +175,9 @@ export async function PUT(
     // OG Image
     const ogImage = "ogImage" in body ? (body.ogImage || null) : undefined;
 
+    // WhatsApp message template
+    const messageTemplate = "messageTemplate" in body ? (body.messageTemplate || null) : undefined;
+
     // Update title based on new names
     const title = `Pernikahan ${groomName} & ${brideName}`;
 
@@ -201,6 +217,7 @@ export async function PUT(
         resepsiLocation,
         resepsiMapsUrl,
         ogImage,
+        messageTemplate,
       },
     });
 

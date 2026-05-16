@@ -81,6 +81,9 @@ model Invitation {
   // OG Image for link preview
   ogImage       String?       // Custom OG image URL for link preview
 
+  // WhatsApp message template
+  messageTemplate String?     // Custom WhatsApp message template
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   user          User           @relation(fields: [userId], references: [id])

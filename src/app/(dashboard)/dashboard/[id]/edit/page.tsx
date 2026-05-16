@@ -418,7 +418,7 @@ export default function EditInvitationPage() {
         {activeTab === "musik" && <MusikSection invitationId={id} currentMusicUrl={invitation.musicUrl || null} showNotification={showNotification} />}
         {activeTab === "rekening" && <RekeningSection invitationId={id} showNotification={showNotification} />}
         {activeTab === "lovestory" && <LoveStorySection invitationId={id} showNotification={showNotification} />}
-        {activeTab === "kirim" && <KirimSection invitationId={id} slug={invitation.slug} showNotification={showNotification} />}
+        {activeTab === "kirim" && <KirimSection invitationId={id} slug={invitation.slug} messageTemplate={(invitation as unknown as { messageTemplate?: string })?.messageTemplate || null} showNotification={showNotification} />}
       </div>
     </div>
   );
@@ -2079,17 +2079,20 @@ Wassalamu'alaikum Wr. Wb.`;
 function KirimSection({
   invitationId,
   slug,
+  messageTemplate: savedTemplate,
   showNotification,
 }: {
   invitationId: string;
   slug: string;
+  messageTemplate: string | null;
   showNotification: (type: "success" | "error", message: string) => void;
 }) {
   const [guests, setGuests] = useState<GuestItem[]>([]);
   const [loadingGuests, setLoadingGuests] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [messageTemplate, setMessageTemplate] = useState(DEFAULT_MESSAGE_TEMPLATE);
+  const [messageTemplate, setMessageTemplate] = useState(savedTemplate || DEFAULT_MESSAGE_TEMPLATE);
+  const [savingTemplate, setSavingTemplate] = useState(false);
   const [sendingAll, setSendingAll] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -2113,6 +2116,28 @@ function KirimSection({
       showNotification("error", err instanceof Error ? err.message : "Gagal memuat daftar tamu");
     } finally {
       setLoadingGuests(false);
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    setSavingTemplate(true);
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageTemplate: messageTemplate }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.message || "Gagal menyimpan template");
+      }
+
+      showNotification("success", "Template pesan berhasil disimpan!");
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Gagal menyimpan template");
+    } finally {
+      setSavingTemplate(false);
     }
   };
 
@@ -2265,6 +2290,34 @@ function KirimSection({
           onChange={(e) => setMessageTemplate(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none resize-none text-sm font-mono"
         />
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSaveTemplate}
+            disabled={savingTemplate}
+            className="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 font-medium cursor-pointer disabled:cursor-not-allowed"
+          >
+            {savingTemplate ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Menyimpan...
+              </>
+            ) : (
+              "Simpan Template"
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMessageTemplate(DEFAULT_MESSAGE_TEMPLATE)}
+            className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors font-medium cursor-pointer"
+          >
+            Reset ke Default
+          </button>
+        </div>
 
         {/* Preview */}
         <details className="mt-2">

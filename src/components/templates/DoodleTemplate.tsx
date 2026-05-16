@@ -1169,7 +1169,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="max-w-2xl mx-auto text-center"
+        className="max-w-sm mx-auto text-center"
       >
         {/* Section heading with gift box doodle */}
         <div className="flex items-center justify-center gap-3 mb-8 md:mb-10">
@@ -1187,7 +1187,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
           className="text-base md:text-lg mb-8"
           style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
         >
-          Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih, kami menyediakan informasi berikut.
+          Berbagi kebahagiaan bersama Anda merupakan hadiah terindah bagi kami.
         </p>
 
         {/* Gift account cards */}
@@ -1200,7 +1200,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <SketchyRectBorder className="p-6 md:p-8">
+              <SketchyRectBorder className="p-4 md:p-5">
                 {/* Bank name */}
                 <h3
                   className="text-xl md:text-2xl font-bold mb-3"
@@ -1425,7 +1425,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
   const [form, setForm] = useState({
     guestName: "",
     message: "",
-    attendance: "Hadir" as "Hadir" | "Tidak Hadir" | "Ragu-ragu",
+    attendance: "Hadir" as "Hadir" | "Tidak Hadir",
   });
   const [errors, setErrors] = useState<{ guestName?: string; message?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1665,7 +1665,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
               Kehadiran
             </label>
             <div className="flex flex-wrap gap-2">
-              {(["Hadir", "Tidak Hadir", "Ragu-ragu"] as const).map((option) => (
+              {(["Hadir", "Tidak Hadir"] as const).map((option) => (
                 <button
                   key={option}
                   type="button"
@@ -1932,7 +1932,7 @@ function DoodleOpeningScreen({
               Kepada,
             </p>
             <p
-              className="text-xl md:text-2xl font-bold"
+              className="text-3xl md:text-4xl font-bold"
               style={{
                 fontFamily: "var(--font-caveat)",
                 color: COLORS.text,
@@ -2513,6 +2513,11 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
               </>
             )}
 
+            {/* ═══════════ COMMENTS SECTION ═══════════ */}
+            <DoodleComments invitationId={invitation.id} comments={invitation.comments} />
+
+            <DoodleDivider />
+
             {/* ═══════════ GIFT SECTION ═══════════ */}
             {invitation.giftAccounts && invitation.giftAccounts.length > 0 && (
               <>
@@ -2520,11 +2525,6 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                 <DoodleDivider />
               </>
             )}
-
-            {/* ═══════════ COMMENTS SECTION ═══════════ */}
-            <DoodleComments invitationId={invitation.id} comments={invitation.comments} />
-
-            <DoodleDivider />
 
             {/* ═══════════ SHARE & FOOTER SECTION ═══════════ */}
             <DoodleShareFooter invitation={invitation} />

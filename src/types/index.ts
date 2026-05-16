@@ -54,6 +54,7 @@ export interface Invitation {
   musicUrl: string | null;
   hashtag: string | null;
   template: string;
+  messageTemplate: string | null;
   createdAt: Date;
   updatedAt: Date;
   user?: User;
