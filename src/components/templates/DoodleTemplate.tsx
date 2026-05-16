@@ -1856,11 +1856,8 @@ function DoodleOpeningScreen({
       className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4"
       style={{ backgroundColor: COLORS.background }}
     >
-      {/* Corner Ribbon Decorations (4 corners) */}
+      {/* Corner Ribbon Decoration (top-left only) */}
       <CornerRibbon position="top-left" />
-      <CornerRibbon position="top-right" />
-      <CornerRibbon position="bottom-left" />
-      <CornerRibbon position="bottom-right" />
 
       {/* Content container */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-sm md:max-w-md">
@@ -2097,7 +2094,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                             <img
                               src={story.imageUrl}
                               alt={story.title}
-                              className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
+                              className="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover"
                             />
                           </div>
                         )}
@@ -2152,7 +2149,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                             <img
                               src={story.imageUrl}
                               alt={story.title}
-                              className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
+                              className="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover"
                             />
                           </div>
                         )}
@@ -2188,7 +2185,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                           <img
                             src={story.imageUrl}
                             alt={story.title}
-                            className="w-16 h-16 rounded-lg object-cover"
+                            className="w-32 h-32 rounded-lg object-cover"
                           />
                         </div>
                       )}
