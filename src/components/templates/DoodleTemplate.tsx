@@ -50,10 +50,10 @@ interface DoodleTemplateProps {
 /** Corner ribbon decoration SVG - positioned at viewport corners */
 function CornerRibbon({ position }: { position: "top-left" | "top-right" | "bottom-left" | "bottom-right" }) {
   const transforms: Record<string, string> = {
-    "top-left": "rotate(0)",
-    "top-right": "rotate(90)",
-    "bottom-right": "rotate(180)",
-    "bottom-left": "rotate(270)",
+    "top-left": "",
+    "top-right": "scaleX(-1)",
+    "bottom-left": "scaleY(-1)",
+    "bottom-right": "scale(-1)",
   };
 
   const positionClasses: Record<string, string> = {
@@ -1856,8 +1856,11 @@ function DoodleOpeningScreen({
       className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4"
       style={{ backgroundColor: COLORS.background }}
     >
-      {/* Corner Ribbon Decoration (top-left only) */}
+      {/* Corner Ribbon Decorations (4 corners) */}
       <CornerRibbon position="top-left" />
+      <CornerRibbon position="top-right" />
+      <CornerRibbon position="bottom-left" />
+      <CornerRibbon position="bottom-right" />
 
       {/* Content container */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-sm md:max-w-md">
