@@ -6,9 +6,12 @@ import { motion } from "framer-motion";
 interface MusicPlayerProps {
   musicUrl: string;
   autoPlay?: boolean;
+  accentColor?: string;
+  borderColor?: string;
+  hoverBorderColor?: string;
 }
 
-export default function MusicPlayer({ musicUrl, autoPlay = true }: MusicPlayerProps) {
+export default function MusicPlayer({ musicUrl, autoPlay = true, accentColor, borderColor, hoverBorderColor }: MusicPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -60,7 +63,14 @@ export default function MusicPlayer({ musicUrl, autoPlay = true }: MusicPlayerPr
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={togglePlay}
-        className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center border border-amber-200 hover:border-amber-400 transition-colors"
+        className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center transition-colors"
+        style={{
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: borderColor || "#fde68a",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = hoverBorderColor || "#fbbf24"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = borderColor || "#fde68a"; }}
         aria-label={isPlaying ? "Pause musik" : "Play musik"}
       >
         {isPlaying ? (
@@ -71,7 +81,8 @@ export default function MusicPlayer({ musicUrl, autoPlay = true }: MusicPlayerPr
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
-                className="w-[3px] bg-amber-600 rounded-full"
+                className="w-[3px] rounded-full"
+                style={{ backgroundColor: accentColor || "#d97706" }}
                 animate={{
                   height: ["8px", "16px", "8px"],
                 }}
@@ -85,7 +96,16 @@ export default function MusicPlayer({ musicUrl, autoPlay = true }: MusicPlayerPr
             ))}
           </motion.div>
         ) : (
-          <span className="text-amber-600 text-lg ml-0.5">▶</span>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill={accentColor || "#d97706"}
+            stroke="none"
+            aria-hidden="true"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
         )}
       </motion.button>
     </div>

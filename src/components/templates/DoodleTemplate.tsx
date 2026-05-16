@@ -622,7 +622,7 @@ function RingIcon({ className = "" }: { className?: string }) {
   );
 }
 
-/** Celebration/confetti icon for Resepsi - hand-drawn style, 24-32px */
+/** Dove/merpati icon for Resepsi - hand-drawn style, 24-32px */
 function CelebrationIcon({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -634,19 +634,21 @@ function CelebrationIcon({ className = "" }: { className?: string }) {
       stroke={COLORS.accent}
       strokeWidth={1.5}
     >
-      {/* Party popper cone */}
-      <path d="M6 28 L14 14 L18 18 Z" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Confetti pieces */}
-      <path d="M18 10 L20 8" strokeLinecap="round" strokeWidth={1.2} />
-      <path d="M22 12 L25 10" strokeLinecap="round" strokeWidth={1.2} />
-      <path d="M20 16 L23 15" strokeLinecap="round" strokeWidth={1.2} />
-      <path d="M14 8 L13 5" strokeLinecap="round" strokeWidth={1.2} />
-      <path d="M24 6 L26 4" strokeLinecap="round" strokeWidth={1.2} />
-      {/* Star burst */}
-      <path d="M25 18 L26 16 L27 18 L29 17 L28 19 L30 20 L28 21 L29 23 L27 22 L26 24 L25 22 L23 23 L24 21 L22 20 L24 19 L23 17 Z" strokeLinecap="round" strokeWidth={1} />
-      {/* Small dots */}
-      <circle cx="10" cy="6" r="1" strokeWidth={1} />
-      <circle cx="22" cy="4" r="1" strokeWidth={1} />
+      {/* Dove body */}
+      <path d="M8 20 C6 18, 6 14, 10 12 C14 10, 18 11, 20 13 C22 15, 22 18, 20 20 C18 22, 12 22, 8 20Z" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Dove head */}
+      <circle cx="21" cy="12" r="3" strokeWidth={1.5} />
+      {/* Beak */}
+      <path d="M24 12 L26 11.5 L24 13" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} />
+      {/* Wing */}
+      <path d="M10 16 C8 13, 6 10, 4 8 C6 9, 9 10, 12 12" strokeLinecap="round" strokeWidth={1.2} />
+      <path d="M12 15 C10 12, 8 9, 7 6 C9 8, 11 10, 14 13" strokeLinecap="round" strokeWidth={1.2} />
+      {/* Tail */}
+      <path d="M8 20 C5 21, 3 23, 2 26 C4 24, 6 22, 8 21" strokeLinecap="round" strokeWidth={1.2} />
+      {/* Olive branch */}
+      <path d="M26 13 C27 14, 28 16, 29 17" strokeLinecap="round" strokeWidth={1} />
+      <path d="M28 15 C29 14, 30 14, 30 13" strokeLinecap="round" strokeWidth={1} />
+      <path d="M29 16 C30 15, 31 15, 31 14" strokeLinecap="round" strokeWidth={1} />
     </svg>
   );
 }
@@ -2505,7 +2507,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
 
             {/* ═══════════ MUSIC PLAYER ═══════════ */}
             {invitation.musicUrl && (
-              <MusicPlayer musicUrl={invitation.musicUrl} autoPlay={true} />
+              <MusicPlayer musicUrl={invitation.musicUrl} autoPlay={true} accentColor="#047857" borderColor="#047857" hoverBorderColor="#065F46" />
             )}
           </motion.main>
         )}
