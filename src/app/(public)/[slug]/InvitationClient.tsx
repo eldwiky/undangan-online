@@ -45,6 +45,7 @@ export interface SerializedLoveStory {
   title: string;
   date: string | null;
   description: string;
+  imageUrl: string | null;
   order: number;
   createdAt: string;
 }

@@ -2095,6 +2095,16 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                   >
                     {isLeft && (
                       <div className="p-4 rounded-lg border-2 border-dashed" style={{ borderColor: COLORS.accent + "40" }}>
+                        {story.imageUrl && (
+                          <div className="flex justify-center mb-3">
+                            <img
+                              src={story.imageUrl}
+                              alt={story.title}
+                              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2"
+                              style={{ borderColor: COLORS.accent }}
+                            />
+                          </div>
+                        )}
                         <h3
                           className="text-xl md:text-2xl font-bold"
                           style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
@@ -2141,6 +2151,16 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                   >
                     {!isLeft && (
                       <div className="p-4 rounded-lg border-2 border-dashed" style={{ borderColor: COLORS.accent + "40" }}>
+                        {story.imageUrl && (
+                          <div className="flex justify-center mb-3">
+                            <img
+                              src={story.imageUrl}
+                              alt={story.title}
+                              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2"
+                              style={{ borderColor: COLORS.accent }}
+                            />
+                          </div>
+                        )}
                         <h3
                           className="text-xl md:text-2xl font-bold"
                           style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
@@ -2168,6 +2188,16 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                   {/* Mobile card (always shown on mobile, hidden on desktop) */}
                   <div className="md:hidden flex-1">
                     <div className="p-4 rounded-lg border-2 border-dashed" style={{ borderColor: COLORS.accent + "40" }}>
+                      {story.imageUrl && (
+                        <div className="flex justify-center mb-3">
+                          <img
+                            src={story.imageUrl}
+                            alt={story.title}
+                            className="w-16 h-16 rounded-full object-cover border-2"
+                            style={{ borderColor: COLORS.accent }}
+                          />
+                        </div>
+                      )}
                       <h3
                         className="text-xl font-bold"
                         style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}

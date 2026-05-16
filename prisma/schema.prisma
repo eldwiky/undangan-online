@@ -100,6 +100,7 @@ model LoveStory {
   title        String         // e.g. "Pertama Bertemu"
   date         String?        // e.g. "Januari 2020"
   description  String
+  imageUrl     String?        // optional photo for this story entry
   order        Int        @default(0)
   createdAt    DateTime   @default(now())
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
