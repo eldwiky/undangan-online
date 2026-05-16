@@ -938,12 +938,12 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
 
           {/* Save the Date - use first available event date, hidden when past */}
           {(() => {
-            const eventDate = invitation.akadDate || invitation.resepsiDate;
+            const eventDate = invitation.resepsiDate || invitation.akadDate;
             if (!eventDate || isEventPast(eventDate)) return null;
-            const startTime = invitation.akadDate ? invitation.akadTime : invitation.resepsiTime;
-            const endTime = invitation.akadDate ? invitation.akadTimeEnd : invitation.resepsiTimeEnd;
-            const venue = invitation.akadDate ? invitation.akadLocationName : invitation.resepsiLocationName;
-            const address = invitation.akadDate ? invitation.akadLocation : invitation.resepsiLocation;
+            const startTime = invitation.resepsiDate ? invitation.resepsiTime : invitation.akadTime;
+            const endTime = invitation.resepsiDate ? invitation.resepsiTimeEnd : invitation.akadTimeEnd;
+            const venue = invitation.resepsiDate ? invitation.resepsiLocationName : invitation.akadLocationName;
+            const address = invitation.resepsiDate ? invitation.resepsiLocation : invitation.akadLocation;
             return (
               <WavyBorderButton
                 onClick={() =>
@@ -1431,8 +1431,6 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(5);
-
   // Auto-poll comments every 5 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -1532,9 +1530,6 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
       default: return attendance;
     }
   };
-
-  const visibleComments = comments.slice(0, visibleCount);
-  const hasMore = visibleCount < comments.length;
 
   return (
     <section className="py-16 md:py-20 px-4 md:px-6">
@@ -1746,9 +1741,9 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
         </motion.form>
 
         {/* Comments List */}
-        {visibleComments.length > 0 ? (
-          <div className="space-y-4">
-            {visibleComments.map((comment, index) => (
+        {comments.length > 0 ? (
+          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+            {comments.map((comment, index) => (
               <motion.div
                 key={comment.id}
                 initial={{ opacity: 0, y: 15 }}
@@ -1808,16 +1803,6 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
                 </div>
               </motion.div>
             ))}
-
-            {hasMore && (
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 5)}
-                className="w-full py-2.5 text-sm transition-colors min-h-[44px] hover:opacity-80"
-                style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.accent }}
-              >
-                Lihat lebih banyak ({comments.length - visibleCount} lagi)
-              </button>
-            )}
           </div>
         ) : (
           <p

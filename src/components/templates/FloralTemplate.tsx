@@ -964,7 +964,7 @@ export default function FloralTemplate({ invitation, guestName }: FloralTemplate
             </motion.form>
 
             {/* Comments list */}
-            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
               {comments.length > 0 ? (
                 comments.map((comment, idx) => (
                   <div

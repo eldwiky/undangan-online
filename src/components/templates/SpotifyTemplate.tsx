@@ -909,7 +909,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             </motion.form>
 
             {/* Comments list */}
-            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
               {comments.length > 0 ? (
                 comments.map((comment, idx) => (
                   <div

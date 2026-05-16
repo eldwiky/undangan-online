@@ -25,7 +25,6 @@ export default function Comments({
   comments: initialComments,
 }: CommentsProps) {
   const [comments, setComments] = useState<SerializedComment[]>(initialComments);
-  const [visibleCount, setVisibleCount] = useState(5);
   const [form, setForm] = useState<CommentForm>({
     guestName: "",
     message: "",
@@ -110,9 +109,6 @@ export default function Comments({
       setIsSubmitting(false);
     }
   };
-
-  const visibleComments = comments.slice(0, visibleCount);
-  const hasMore = visibleCount < comments.length;
 
   return (
     <section className="py-14 px-4 text-center bg-white/40 backdrop-blur-sm">
@@ -227,9 +223,9 @@ export default function Comments({
         </motion.form>
 
         {/* Comments List */}
-        {visibleComments.length > 0 ? (
-          <div className="space-y-4 text-left">
-            {visibleComments.map((comment, index) => (
+        {comments.length > 0 ? (
+          <div className="space-y-4 text-left max-h-[400px] overflow-y-auto">
+            {comments.map((comment, index) => (
               <motion.div
                 key={comment.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -256,15 +252,6 @@ export default function Comments({
                 </p>
               </motion.div>
             ))}
-
-            {hasMore && (
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 5)}
-                className="w-full py-2 text-sm text-amber-700 hover:text-amber-800 transition-colors"
-              >
-                Lihat lebih banyak ({comments.length - visibleCount} lagi)
-              </button>
-            )}
           </div>
         ) : (
           <p className="text-gray-500 text-sm">Belum ada ucapan</p>
