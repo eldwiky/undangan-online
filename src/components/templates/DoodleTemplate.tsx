@@ -1870,13 +1870,31 @@ function DoodleOpeningScreen({
 
         {/* "Save the Date" text */}
         <p
-          className="text-xl md:text-2xl mb-2"
+          className="text-xl md:text-2xl mb-1"
           style={{
             fontFamily: "var(--font-patrick-hand)",
             color: COLORS.textLight,
           }}
         >
           Save the Date
+        </p>
+
+        {/* Wedding date in DD.MM.YYYY format */}
+        <p
+          className="text-lg md:text-xl mb-3"
+          style={{
+            fontFamily: "var(--font-caveat)",
+            color: COLORS.accent,
+            letterSpacing: "0.05em",
+          }}
+        >
+          {(() => {
+            const d = new Date(eventDate);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            return `${dd}.${mm}.${yyyy}`;
+          })()}
         </p>
 
         {/* Groom & Bride Names */}
