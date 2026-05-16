@@ -1602,6 +1602,7 @@ interface LoveStoryItem {
   title: string;
   date: string | null;
   description: string;
+  imageUrl: string | null;
   order: number;
 }
 
@@ -1619,6 +1620,7 @@ function LoveStorySection({
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    imageUrl: "",
     title: "",
     date: "",
     description: "",
@@ -1660,6 +1662,7 @@ function LoveStorySection({
           title: formData.title,
           date: formData.date || null,
           description: formData.description,
+          imageUrl: formData.imageUrl || null,
           order: stories.length,
         }),
       });
@@ -1671,7 +1674,7 @@ function LoveStorySection({
 
       const json = await res.json();
       setStories((prev) => [...prev, json.data]);
-      setFormData({ title: "", date: "", description: "" });
+      setFormData({ imageUrl: "", title: "", date: "", description: "" });
       setShowForm(false);
       showNotification("success", "Love story berhasil ditambahkan");
     } catch (err) {
@@ -1730,6 +1733,32 @@ function LoveStorySection({
       {showForm && (
         <form onSubmit={handleSubmit} className="border border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50">
           <h4 className="text-sm font-medium text-gray-700">Tambah Love Story Baru</h4>
+          <div>
+            <label htmlFor="storyImageUrl" className="block text-sm text-gray-600 mb-1">
+              URL Foto
+            </label>
+            <div className="flex gap-3 items-start">
+              <div className="flex-1">
+                <input
+                  id="storyImageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                  placeholder="https://example.com/foto.jpg"
+                />
+              </div>
+              {formData.imageUrl && (
+                <img
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  className="w-16 h-16 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  onLoad={(e) => { (e.target as HTMLImageElement).style.display = 'block'; }}
+                />
+              )}
+            </div>
+          </div>
           <div>
             <label htmlFor="storyTitle" className="block text-sm text-gray-600 mb-1">
               Judul <span className="text-red-500">*</span>
@@ -1793,7 +1822,7 @@ function LoveStorySection({
               type="button"
               onClick={() => {
                 setShowForm(false);
-                setFormData({ title: "", date: "", description: "" });
+                setFormData({ imageUrl: "", title: "", date: "", description: "" });
               }}
               className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
@@ -1820,11 +1849,19 @@ function LoveStorySection({
               className="flex items-start justify-between border border-gray-200 rounded-lg p-4"
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
+                {story.imageUrl ? (
+                  <img
+                    src={story.imageUrl}
+                    alt={story.title}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0 mt-0.5"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-medium text-gray-900">{story.title}</p>
                   {story.date && <p className="text-xs text-rose-600 mt-0.5">{story.date}</p>}

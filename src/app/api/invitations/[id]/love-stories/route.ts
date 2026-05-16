@@ -117,7 +117,7 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { title, date, description, order } = body;
+    const { title, date, description, imageUrl, order } = body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
       return NextResponse.json(
@@ -147,6 +147,7 @@ export async function POST(
         title: title.trim(),
         date: date ? String(date).trim() : null,
         description: description.trim(),
+        imageUrl: imageUrl && typeof imageUrl === "string" ? imageUrl.trim() : null,
         order: typeof order === "number" ? order : 0,
       },
     });
