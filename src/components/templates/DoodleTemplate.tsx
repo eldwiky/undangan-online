@@ -1364,33 +1364,6 @@ function DoodleShareFooter({ invitation }: { invitation: SerializedInvitation })
         transition={{ duration: 0.6 }}
         className="max-w-md mx-auto text-center"
       >
-        {/* Share heading */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <DoodleHeart className="opacity-60" />
-          <h2
-            className="text-2xl md:text-3xl font-bold"
-            style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
-          >
-            Bagikan Undangan
-          </h2>
-          <DoodleHeart className="opacity-60" />
-        </div>
-
-        {/* Share buttons */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          <WavyBorderButton onClick={copyLink}>
-            {copied ? "Tersalin!" : "Copy Link"}
-          </WavyBorderButton>
-          <WavyBorderButton onClick={shareWhatsApp}>
-            WhatsApp
-          </WavyBorderButton>
-          <WavyBorderButton onClick={shareTelegram}>
-            Telegram
-          </WavyBorderButton>
-        </div>
-
-        <DoodleDivider className="mb-12" />
-
         {/* Thank you message */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
