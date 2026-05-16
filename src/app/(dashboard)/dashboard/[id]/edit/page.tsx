@@ -1735,17 +1735,28 @@ function LoveStorySection({
           <h4 className="text-sm font-medium text-gray-700">Tambah Love Story Baru</h4>
           <div>
             <label htmlFor="storyImageUrl" className="block text-sm text-gray-600 mb-1">
-              URL Foto
+              Foto (maks. 500KB)
             </label>
             <div className="flex gap-3 items-start">
               <div className="flex-1">
                 <input
                   id="storyImageUrl"
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 500 * 1024) {
+                      showNotification("error", "Ukuran foto maksimal 500KB");
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData({ ...formData, imageUrl: reader.result as string });
+                    };
+                    reader.readAsDataURL(file);
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
-                  placeholder="https://example.com/foto.jpg"
                 />
               </div>
               {formData.imageUrl && (

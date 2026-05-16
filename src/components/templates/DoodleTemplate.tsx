@@ -2005,10 +2005,7 @@ function DoodleOpeningScreen({
 
 /** Format a love story date in Indonesian locale (shorter format) */
 function formatLoveStoryDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const month = INDONESIAN_MONTHS[date.getMonth()];
-  const year = date.getFullYear();
-  return `${month} ${year}`;
+  return dateStr;
 }
 
 /** DoodleLoveStory: vertical timeline with hand-drawn connectors */
@@ -2100,8 +2097,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                             <img
                               src={story.imageUrl}
                               alt={story.title}
-                              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2"
-                              style={{ borderColor: COLORS.accent }}
+                              className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
                             />
                           </div>
                         )}
@@ -2156,8 +2152,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                             <img
                               src={story.imageUrl}
                               alt={story.title}
-                              className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2"
-                              style={{ borderColor: COLORS.accent }}
+                              className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
                             />
                           </div>
                         )}
@@ -2193,8 +2188,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
                           <img
                             src={story.imageUrl}
                             alt={story.title}
-                            className="w-16 h-16 rounded-full object-cover border-2"
-                            style={{ borderColor: COLORS.accent }}
+                            className="w-16 h-16 rounded-lg object-cover"
                           />
                         </div>
                       )}
