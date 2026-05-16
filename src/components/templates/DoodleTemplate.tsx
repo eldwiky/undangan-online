@@ -1903,16 +1903,16 @@ function DoodleOpeningScreen({
         {guestName && guestName.trim() !== "" && (
           <div className="mb-4 md:mb-6">
             <p
-              className="text-sm md:text-base"
+              className="text-lg md:text-xl"
               style={{
                 fontFamily: "var(--font-patrick-hand)",
                 color: COLORS.textLight,
               }}
             >
-              Kepada
+              Kepada,
             </p>
             <p
-              className="text-lg md:text-xl font-bold"
+              className="text-xl md:text-2xl font-bold"
               style={{
                 fontFamily: "var(--font-caveat)",
                 color: COLORS.text,
