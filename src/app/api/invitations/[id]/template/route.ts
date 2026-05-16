@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const VALID_TEMPLATES = ["elegant", "spotify", "floral", "garden"];
+const VALID_TEMPLATES = ["elegant", "spotify", "floral", "doodle"];
 
 export async function PUT(
   request: Request,

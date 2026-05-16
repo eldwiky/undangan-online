@@ -1503,11 +1503,11 @@ function TemplateSection({
       colors: "bg-gradient-to-br from-[#faf7f2] to-[#f0e8df]",
     },
     {
-      id: "garden",
-      name: "Garden",
-      description: "Tema taman romantis ala Pinterest dengan warna sage green, bunga daisy, dan font script elegan",
-      preview: "🌼",
-      colors: "bg-gradient-to-br from-[#5c6b4f] to-[#4a5940]",
+      id: "doodle",
+      name: "Doodle",
+      description: "Tema hand-drawn whimsical dengan warna beige & emerald green, ilustrasi doodle, dan font tulisan tangan",
+      preview: "✏️",
+      colors: "bg-gradient-to-br from-[#F5F0E8] to-[#d4e8d0]",
     },
   ];
 
