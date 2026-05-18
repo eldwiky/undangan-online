@@ -1496,11 +1496,11 @@ function TemplateSection({
       colors: "bg-gradient-to-br from-[#121212] to-[#1a1a1a]",
     },
     {
-      id: "floral",
-      name: "Floral",
-      description: "Tema vintage floral dengan warna mauve & olive, ilustrasi bunga, dan nuansa romantis",
-      preview: "🌸",
-      colors: "bg-gradient-to-br from-[#faf7f2] to-[#f0e8df]",
+      id: "tinder",
+      name: "Tinder",
+      description: "Tema modern ala Tinder dengan gradient pink-coral, card-based layout, dan animasi swipe",
+      preview: "💕",
+      colors: "bg-gradient-to-br from-[#FD267A] to-[#FF6036]",
     },
     {
       id: "doodle",

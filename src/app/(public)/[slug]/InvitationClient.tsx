@@ -8,8 +8,8 @@ import GiftAccounts from "@/components/invitation/GiftAccounts";
 import Comments from "@/components/invitation/Comments";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
 import SpotifyTemplate from "@/components/templates/SpotifyTemplate";
-import FloralTemplate from "@/components/templates/FloralTemplate";
 import DoodleTemplate from "@/components/templates/DoodleTemplate";
+import TinderTemplate from "@/components/templates/TinderTemplate";
 
 // Serialized types
 export interface SerializedGallery {
@@ -327,9 +327,9 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
     return <SpotifyTemplate invitation={invitation} guestName={guestName} />;
   }
 
-  // Template routing: render Floral template if selected
-  if (invitation.template === "floral") {
-    return <FloralTemplate invitation={invitation} guestName={guestName} />;
+  // Template routing: render Tinder template if selected
+  if (invitation.template === "tinder") {
+    return <TinderTemplate invitation={invitation} guestName={guestName} />;
   }
 
   // Template routing: render Doodle template if selected
