@@ -1089,6 +1089,28 @@ function DoodleGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
               </svg>
             </button>
 
+            {/* Previous button */}
+            {lightboxIndex > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Previous photo"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+            )}
+
+            {/* Next button */}
+            {lightboxIndex < gallery.length - 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Next photo"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+            )}
+
             {/* Lightbox image */}
             <motion.img
               key={gallery[lightboxIndex].id}
@@ -1100,7 +1122,21 @@ function DoodleGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
               alt={`Gallery photo ${lightboxIndex + 1}`}
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -100 && lightboxIndex < gallery.length - 1) {
+                  setLightboxIndex(lightboxIndex + 1);
+                } else if (info.offset.x > 100 && lightboxIndex > 0) {
+                  setLightboxIndex(lightboxIndex - 1);
+                }
+              }}
             />
+
+            {/* Photo counter */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {lightboxIndex + 1} / {gallery.length}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

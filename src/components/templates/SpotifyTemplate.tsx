@@ -99,7 +99,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [commentName, setCommentName] = useState("");
   const [commentMessage, setCommentMessage] = useState("");
   const [commentAttendance, setCommentAttendance] = useState("hadir");
@@ -750,7 +750,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                     key={photo.id}
                     variants={fadeInUp}
                     className="aspect-square rounded-lg overflow-hidden cursor-pointer group relative"
-                    onClick={() => setLightboxImage(photo.imageUrl)}
+                    onClick={() => setLightboxIndex(i)}
                   >
                     <img
                       src={photo.imageUrl}
@@ -772,28 +772,61 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
 
         {/* Lightbox */}
         <AnimatePresence>
-          {lightboxImage && (
+          {lightboxIndex !== null && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
-              onClick={() => setLightboxImage(null)}
+              onClick={() => setLightboxIndex(null)}
             >
-              <motion.img
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                src={lightboxImage}
-                alt="Preview"
-                className="max-w-full max-h-[85vh] object-contain rounded-lg"
-              />
+              {/* Close */}
               <button
-                onClick={() => setLightboxImage(null)}
+                onClick={() => setLightboxIndex(null)}
                 className="absolute top-4 right-4 w-10 h-10 bg-white/10 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/20"
               >
                 ✕
               </button>
+              {/* Previous */}
+              {lightboxIndex > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+                </button>
+              )}
+              {/* Next */}
+              {lightboxIndex < invitation.gallery.length - 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
+              )}
+              <motion.img
+                key={invitation.gallery[lightboxIndex].id}
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+                src={invitation.gallery[lightboxIndex].imageUrl}
+                alt="Preview"
+                className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x < -100 && lightboxIndex < invitation.gallery.length - 1) {
+                    setLightboxIndex(lightboxIndex + 1);
+                  } else if (info.offset.x > 100 && lightboxIndex > 0) {
+                    setLightboxIndex(lightboxIndex - 1);
+                  }
+                }}
+              />
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+                {lightboxIndex + 1} / {invitation.gallery.length}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

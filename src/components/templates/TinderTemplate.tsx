@@ -306,16 +306,16 @@ function TinderCountdown({ eventDate }: { eventDate: string }) {
 
 // ═══════════ GALLERY SECTION ═══════════
 function TinderGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (gallery.length === 0) return null;
+
+  const sorted = [...gallery].sort((a, b) => a.order - b.order);
 
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {gallery
-          .sort((a, b) => a.order - b.order)
-          .map((photo, i) => (
+        {sorted.map((photo, i) => (
             <motion.div
               key={photo.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -323,7 +323,7 @@ function TinderGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
               className="aspect-square rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-shadow"
-              onClick={() => setSelected(photo.imageUrl)}
+              onClick={() => setSelectedIndex(i)}
             >
               <img
                 src={photo.imageUrl}
@@ -336,28 +336,68 @@ function TinderGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
       </div>
 
       <AnimatePresence>
-        {selected && (
+        {selectedIndex !== null && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setSelected(null)}
+            onClick={() => setSelectedIndex(null)}
           >
-            <motion.img
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              src={selected}
-              alt="Preview"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            />
+            {/* Close button */}
             <button
-              onClick={() => setSelected(null)}
-              className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/30"
+              onClick={() => setSelectedIndex(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/30"
             >
               ✕
             </button>
+
+            {/* Previous button */}
+            {selectedIndex > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setSelectedIndex(selectedIndex - 1); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Previous photo"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+            )}
+
+            {/* Next button */}
+            {selectedIndex < sorted.length - 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setSelectedIndex(selectedIndex + 1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Next photo"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+            )}
+
+            <motion.img
+              key={sorted[selectedIndex].id}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              src={sorted[selectedIndex].imageUrl}
+              alt="Preview"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -100 && selectedIndex < sorted.length - 1) {
+                  setSelectedIndex(selectedIndex + 1);
+                } else if (info.offset.x > 100 && selectedIndex > 0) {
+                  setSelectedIndex(selectedIndex - 1);
+                }
+              }}
+            />
+
+            {/* Photo counter */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {selectedIndex + 1} / {sorted.length}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
