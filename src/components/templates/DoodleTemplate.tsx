@@ -2349,43 +2349,45 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6 }}
-                  className="max-w-sm mx-auto text-center"
+                  className="max-w-xs md:max-w-sm mx-auto text-center"
                 >
-                  {/* Hand-drawn arch frame */}
-                  <div className="relative w-56 h-72 md:w-64 md:h-80 mx-auto mb-8">
-                    {/* Sketchy arch border SVG */}
+                  {/* Doodle-style photo frame — rounded with sketchy border */}
+                  <div className="relative mx-auto mb-10 p-3">
+                    {/* Sketchy hand-drawn border */}
                     <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                      viewBox="0 0 200 260"
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      viewBox="0 0 300 380"
                       preserveAspectRatio="none"
                       fill="none"
                       stroke="#047857"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
                       aria-hidden="true"
                     >
-                      <path d="M10 260 L10 100 C10 40, 50 8, 100 8 C150 8, 190 40, 190 100 L190 260" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M6 258 L6 98 C6 36, 48 4, 100 4 C152 4, 194 36, 194 98 L194 258" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" opacity="0.4" />
+                      <path d="M20 30 C20 15, 35 5, 60 5 L240 5 C265 5, 280 15, 280 30 L280 340 C280 360, 265 375, 240 375 L60 375 C35 375, 20 360, 20 340 Z" />
+                      <path d="M16 28 C16 12, 32 2, 58 2 L242 2 C268 2, 284 12, 284 28 L284 342 C284 362, 268 378, 242 378 L58 378 C32 378, 16 362, 16 342 Z" strokeWidth="1" opacity="0.3" />
                     </svg>
-                    {/* Photo with arch clip */}
-                    <div className="w-full h-full overflow-hidden" style={{ borderRadius: "50% 50% 0 0 / 40% 40% 0 0" }}>
+                    {/* Photo */}
+                    <div className="relative rounded-2xl overflow-hidden shadow-md">
                       <img
                         src={invitation.heroPhoto || invitation.groomPhoto || ""}
                         alt="Couple"
-                        className="w-full h-full object-cover"
+                        className="w-full aspect-[3/4] object-cover"
                       />
                     </div>
-                    {/* Leaf accents */}
-                    <div className="absolute -top-3 -left-3 opacity-50 pointer-events-none">
-                      <LeafDoodle className="-rotate-45" />
+                    {/* Doodle heart accents */}
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 pointer-events-none">
+                      <DoodleHeart className="opacity-60" />
                     </div>
-                    <div className="absolute -top-3 -right-3 opacity-50 pointer-events-none">
-                      <LeafDoodle className="rotate-45 scale-x-[-1]" />
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 pointer-events-none">
+                      <DoodleHeart className="opacity-60" />
                     </div>
                   </div>
-                  <p className="text-sm md:text-base tracking-widest uppercase mb-3" style={{ color: "#6B7280", fontFamily: "var(--font-patrick-hand)" }}>
+
+                  <p className="text-sm md:text-base tracking-[0.2em] uppercase mb-4" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
                     Kami Yang Berbahagia
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-caveat)", color: "#065F46" }}>
+                  <h2 className="text-3xl md:text-4xl font-bold mt-2" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
                     {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
                   </h2>
                 </motion.div>
