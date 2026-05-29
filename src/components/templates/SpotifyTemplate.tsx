@@ -355,7 +355,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             transition={{ delay: 2.3, duration: 0.5 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => { setIsOpened(true); playConfettiSound(); }}
+            onClick={() => { setIsOpened(true); }}
             className="px-8 py-3 bg-[#1DB954] text-black font-bold rounded-full hover:bg-[#1ed760] transition-colors shadow-lg"
           >
             Buka Undangan

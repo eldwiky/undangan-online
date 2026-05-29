@@ -722,7 +722,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
 
   const handleMatchComplete = useCallback(() => {
     setPhase("content");
-    playConfettiSound();
+    
   }, []);
 
   return (
@@ -896,7 +896,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               <h2 className="text-xl font-bold mb-6" style={{ color: COLORS.dark }}>
                 Menghitung Hari
               </h2>
-              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }} />
+              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} />
             </motion.section>
 
             {/* ═══════════ EVENTS ═══════════ */}

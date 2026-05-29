@@ -361,7 +361,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
         eventDate={invitation.eventDate}
         hashtag={invitation.hashtag}
         guestName={guestName}
-        onOpen={() => { setIsOpened(true); playConfettiSound(); }}
+        onOpen={() => { setIsOpened(true); }}
       />
     );
   }
@@ -520,7 +520,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           <motion.h2 variants={fadeUp} className="text-3xl font-serif text-gray-800 mb-10">
             Menghitung Hari
           </motion.h2>
-          <CountdownSection eventDate={invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }} />
+          <CountdownSection eventDate={invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} />
         </motion.div>
       </section>
 

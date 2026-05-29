@@ -2307,9 +2307,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
   const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
 
   useEffect(() => {
-    if (isOpened) {
-      playConfettiSound();
-    }
+    // Confetti shows on open (no sound)
   }, [isOpened]);
 
   return (
@@ -2351,43 +2349,19 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                   transition={{ duration: 0.6 }}
                   className="max-w-xs md:max-w-sm mx-auto text-center"
                 >
-                  {/* Doodle-style photo frame — rounded with sketchy border */}
-                  <div className="relative mx-auto mb-10 p-3">
-                    {/* Sketchy hand-drawn border */}
-                    <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      viewBox="0 0 300 380"
-                      preserveAspectRatio="none"
-                      fill="none"
-                      stroke="#047857"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M20 30 C20 15, 35 5, 60 5 L240 5 C265 5, 280 15, 280 30 L280 340 C280 360, 265 375, 240 375 L60 375 C35 375, 20 360, 20 340 Z" />
-                      <path d="M16 28 C16 12, 32 2, 58 2 L242 2 C268 2, 284 12, 284 28 L284 342 C284 362, 268 378, 242 378 L58 378 C32 378, 16 362, 16 342 Z" strokeWidth="1" opacity="0.3" />
-                    </svg>
-                    {/* Photo */}
-                    <div className="relative rounded-2xl overflow-hidden shadow-md">
-                      <img
-                        src={invitation.heroPhoto || invitation.groomPhoto || ""}
-                        alt="Couple"
-                        className="w-full aspect-[3/4] object-cover"
-                      />
-                    </div>
-                    {/* Doodle heart accents */}
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 pointer-events-none">
-                      <DoodleHeart className="opacity-60" />
-                    </div>
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 pointer-events-none">
-                      <DoodleHeart className="opacity-60" />
-                    </div>
+                  {/* Photo with simple rounded border */}
+                  <div className="relative mx-auto mb-12 rounded-2xl overflow-hidden border-2 shadow-lg" style={{ borderColor: COLORS.accent }}>
+                    <img
+                      src={invitation.heroPhoto || invitation.groomPhoto || ""}
+                      alt="Couple"
+                      className="w-full aspect-[3/4] object-cover"
+                    />
                   </div>
 
-                  <p className="text-sm md:text-base tracking-[0.2em] uppercase mb-4" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
+                  <p className="text-sm md:text-base tracking-[0.2em] uppercase mb-6" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
                     Kami Yang Berbahagia
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-bold mt-2" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
+                  <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
                     {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
                   </h2>
                 </motion.div>
@@ -2621,7 +2595,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             {/* ═══════════ COUNTDOWN SECTION ═══════════ */}
             <DoodleCountdown
               eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate}
-              onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }}
+              onReachZero={() => { setShowCountdownConfetti(true); }}
             />
 
             <DoodleDivider />
