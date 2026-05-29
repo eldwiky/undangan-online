@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Caveat, Patrick_Hand } from "next/font/google";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
@@ -373,10 +373,11 @@ function SketchyRectBorder({
 }
 
 // ═══════════ COUNTDOWN SUB-COMPONENT ═══════════
-function DoodleCountdown({ eventDate }: { eventDate: string }) {
+function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
   const [countdown, setCountdown] = useState(() =>
     calculateCountdown(new Date(eventDate))
   );
+  const wasPastRef = useRef(countdown.isPast);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -384,6 +385,13 @@ function DoodleCountdown({ eventDate }: { eventDate: string }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [eventDate]);
+
+  useEffect(() => {
+    if (countdown.isPast && !wasPastRef.current) {
+      onReachZero?.();
+    }
+    wasPastRef.current = countdown.isPast;
+  }, [countdown.isPast, onReachZero]);
 
   const units = [
     { value: countdown.days, label: "Hari" },
@@ -1183,6 +1191,7 @@ function GiftBoxDoodle({ className = "" }: { className?: string }) {
 // ═══════════ GIFT SECTION SUB-COMPONENT ═══════════
 function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showGift, setShowGift] = useState(false);
 
   if (!invitation.giftAccounts || invitation.giftAccounts.length === 0) {
     return null;
@@ -1234,8 +1243,26 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
           Berbagi kebahagiaan bersama Anda merupakan hadiah terindah bagi kami.
         </p>
 
-        {/* Gift account cards */}
-        <div className="space-y-6">
+        {/* Toggle button */}
+        <button
+          onClick={() => setShowGift(!showGift)}
+          className="relative inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-md cursor-pointer min-h-[44px] min-w-[44px] transition-transform hover:scale-105 active:scale-95 mb-6"
+          style={{ color: COLORS.white, backgroundColor: COLORS.accent, fontFamily: "var(--font-patrick-hand)" }}
+        >
+          {showGift ? "Sembunyikan" : "Kirim Hadiah 🎁"}
+        </button>
+
+        {/* Gift account cards - collapsible */}
+        <AnimatePresence>
+          {showGift && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-6">
           {invitation.giftAccounts.map((account, index) => (
             <motion.div
               key={account.id}
@@ -1344,6 +1371,9 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
             </motion.div>
           ))}
         </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Leaf doodle accents at bottom */}
         <div className="flex justify-center mt-8 gap-4 opacity-40">
@@ -2274,6 +2304,7 @@ const SCROLL_SECTIONS = [
 
 export default function DoodleTemplate({ invitation, guestName }: DoodleTemplateProps) {
   const [isOpened, setIsOpened] = useState(false);
+  const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
 
   useEffect(() => {
     if (isOpened) {
@@ -2284,6 +2315,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
   return (
     <div className={`${caveat.variable} ${patrickHand.variable}`}>
       <Confetti show={isOpened} />
+      <Confetti show={showCountdownConfetti} />
       <AnimatePresence mode="wait">
         {!isOpened ? (
           <motion.div
@@ -2385,20 +2417,6 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                 </motion.div>
               </section>
             )}
-
-            <DoodleDivider />
-
-            {/* ═══════════ EVENTS SECTION ═══════════ */}
-            {(invitation.akadDate || invitation.resepsiDate) && (
-              <DoodleEvents invitation={invitation} />
-            )}
-
-            <DoodleDivider />
-
-            {/* ═══════════ COUNTDOWN SECTION ═══════════ */}
-            <DoodleCountdown
-              eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate}
-            />
 
             <DoodleDivider />
 
@@ -2544,6 +2562,21 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                 </ParallaxElement>
               </motion.div>
             </section>
+
+            <DoodleDivider />
+
+            {/* ═══════════ COUNTDOWN SECTION ═══════════ */}
+            <DoodleCountdown
+              eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate}
+              onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }}
+            />
+
+            <DoodleDivider />
+
+            {/* ═══════════ EVENTS SECTION ═══════════ */}
+            {(invitation.akadDate || invitation.resepsiDate) && (
+              <DoodleEvents invitation={invitation} />
+            )}
 
             <DoodleDivider />
 

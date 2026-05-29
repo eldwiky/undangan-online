@@ -201,8 +201,9 @@ function saveTheDate(invitation: SerializedInvitation) {
 }
 
 // Countdown component inline
-function CountdownSection({ eventDate }: { eventDate: string }) {
+function CountdownSection({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
   const [countdown, setCountdown] = useState(calcCountdown(new Date(eventDate)));
+  const wasPastRef = useRef(countdown.isPast);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -210,6 +211,13 @@ function CountdownSection({ eventDate }: { eventDate: string }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [eventDate]);
+
+  useEffect(() => {
+    if (countdown.isPast && !wasPastRef.current) {
+      onReachZero?.();
+    }
+    wasPastRef.current = countdown.isPast;
+  }, [countdown.isPast, onReachZero]);
 
   if (countdown.isPast) {
     return (
@@ -322,6 +330,8 @@ function GallerySection({ photos }: { photos: SerializedGallery[] }) {
 
 export default function InvitationClient({ invitation }: InvitationClientProps) {
   const [isOpened, setIsOpened] = useState(false);
+  const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
+  const [showGift, setShowGift] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
   const searchParams = useSearchParams();
   const guestName = searchParams.get("to");
@@ -357,6 +367,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
   return (
     <main ref={mainRef} className="min-h-screen bg-gradient-to-b from-[#fdf8f0] via-white to-[#fdf8f0] overflow-hidden">
       <Confetti show={isOpened} />
+      <Confetti show={showCountdownConfetti} />
       <FallingPetals variant="petals" />
       <ScrollDots sections={[
         { id: "quote", label: "Ayat" },
@@ -487,7 +498,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           <motion.h2 variants={fadeUp} className="text-3xl font-serif text-gray-800 mb-10">
             Menghitung Hari
           </motion.h2>
-          <CountdownSection eventDate={invitation.eventDate} />
+          <CountdownSection eventDate={invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }} />
         </motion.div>
       </section>
 
@@ -681,7 +692,55 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
         <>
           <Divider />
           <div id="gift">
-            <GiftAccounts accounts={invitation.giftAccounts} />
+            <section className="py-14 px-4 text-center">
+              <div className="max-w-md mx-auto">
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="text-xl font-serif text-gray-800 mb-4"
+                >
+                  Hadiah Digital
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="text-sm text-gray-500 mb-6"
+                >
+                  Doa restu Anda merupakan karunia yang sangat berarti bagi kami.
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mb-6"
+                >
+                  <button
+                    onClick={() => setShowGift(!showGift)}
+                    className="px-6 py-3 rounded-full text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer"
+                  >
+                    {showGift ? "Sembunyikan" : "Kirim Hadiah 🎁"}
+                  </button>
+                </motion.div>
+                <AnimatePresence>
+                  {showGift && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <GiftAccounts accounts={invitation.giftAccounts} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </section>
           </div>
         </>
       )}

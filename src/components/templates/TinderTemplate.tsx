@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 import { calculateCountdown } from "@/lib/utils";
@@ -267,8 +267,9 @@ function MatchTransition({ onComplete }: { onComplete: () => void }) {
 }
 
 // ═══════════ COUNTDOWN SECTION ═══════════
-function TinderCountdown({ eventDate }: { eventDate: string }) {
+function TinderCountdown({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
   const [countdown, setCountdown] = useState(calculateCountdown(new Date(eventDate)));
+  const wasPastRef = useRef(countdown.isPast);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -276,6 +277,13 @@ function TinderCountdown({ eventDate }: { eventDate: string }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [eventDate]);
+
+  useEffect(() => {
+    if (countdown.isPast && !wasPastRef.current) {
+      onReachZero?.();
+    }
+    wasPastRef.current = countdown.isPast;
+  }, [countdown.isPast, onReachZero]);
 
   if (countdown.isPast) {
     return (
@@ -705,6 +713,8 @@ const TINDER_SCROLL_SECTIONS = [
 // ═══════════ MAIN TEMPLATE COMPONENT ═══════════
 export default function TinderTemplate({ invitation, guestName }: TinderTemplateProps) {
   const [phase, setPhase] = useState<"opening" | "match" | "content">("opening");
+  const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
+  const [showGift, setShowGift] = useState(false);
 
   const handleOpen = useCallback(() => {
     setPhase("match");
@@ -718,6 +728,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
   return (
     <div>
       <Confetti show={phase === "content"} />
+      <Confetti show={showCountdownConfetti} />
       <AnimatePresence mode="wait">
         {phase === "opening" && (
           <motion.div
@@ -862,7 +873,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               <h2 className="text-xl font-bold mb-6" style={{ color: COLORS.dark }}>
                 Menghitung Hari
               </h2>
-              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} />
+              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); playConfettiSound(); }} />
             </motion.section>
 
             {/* ═══════════ EVENTS ═══════════ */}
@@ -1030,7 +1041,28 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 <p className="text-sm text-gray-500 text-center mb-4">
                   Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih, kami menyediakan informasi berikut:
                 </p>
-                <TinderGift invitation={invitation} />
+                <div className="text-center mb-4">
+                  <button
+                    onClick={() => setShowGift(!showGift)}
+                    className="px-6 py-3 rounded-full text-white font-medium text-sm shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}
+                  >
+                    {showGift ? "Sembunyikan" : "Kirim Hadiah 🎁"}
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {showGift && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <TinderGift invitation={invitation} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.section>
             )}
 

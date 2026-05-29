@@ -110,6 +110,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
   const [commentAttendance, setCommentAttendance] = useState("hadir");
   const [comments, setComments] = useState(invitation.comments);
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
+  const [showGift, setShowGift] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -865,35 +866,56 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             <motion.p variants={fadeInUp} className="text-gray-400 text-center mb-8 text-sm">
               Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih, kami menyediakan informasi berikut.
             </motion.p>
-            {invitation.giftAccounts.length > 0 ? (
-              <div className="space-y-4">
-                {invitation.giftAccounts.map((account) => (
-                  <motion.div
-                    key={account.id}
-                    variants={fadeInUp}
-                    className="bg-[#1a1a1a] rounded-xl p-5 border border-[#282828] flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-xs text-[#1DB954] font-medium uppercase tracking-wide">{account.bankName}</p>
-                      <p className="text-white font-mono text-lg mt-1">{account.accountNumber}</p>
-                      <p className="text-gray-400 text-sm mt-0.5">a.n. {account.accountHolder}</p>
+            <motion.div variants={fadeInUp} className="text-center mb-6">
+              <button
+                onClick={() => setShowGift(!showGift)}
+                className="px-6 py-3 rounded-full text-black font-bold text-sm hover:bg-[#1ed760] transition-colors cursor-pointer"
+                style={{ backgroundColor: "#1DB954" }}
+              >
+                {showGift ? "Sembunyikan" : "Kirim Hadiah 🎁"}
+              </button>
+            </motion.div>
+            <AnimatePresence>
+              {showGift && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  {invitation.giftAccounts.length > 0 ? (
+                    <div className="space-y-4">
+                      {invitation.giftAccounts.map((account) => (
+                        <motion.div
+                          key={account.id}
+                          variants={fadeInUp}
+                          className="bg-[#1a1a1a] rounded-xl p-5 border border-[#282828] flex items-center justify-between"
+                        >
+                          <div>
+                            <p className="text-xs text-[#1DB954] font-medium uppercase tracking-wide">{account.bankName}</p>
+                            <p className="text-white font-mono text-lg mt-1">{account.accountNumber}</p>
+                            <p className="text-gray-400 text-sm mt-0.5">a.n. {account.accountHolder}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(account.accountNumber, account.id)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                              copiedAccount === account.id
+                                ? "bg-[#1DB954] text-black"
+                                : "bg-[#282828] text-white hover:bg-[#333]"
+                            }`}
+                          >
+                            {copiedAccount === account.id ? "✓ Copied" : "Copy"}
+                          </button>
+                        </motion.div>
+                      ))}
                     </div>
-                    <button
-                      onClick={() => copyToClipboard(account.accountNumber, account.id)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        copiedAccount === account.id
-                          ? "bg-[#1DB954] text-black"
-                          : "bg-[#282828] text-white hover:bg-[#333]"
-                      }`}
-                    >
-                      {copiedAccount === account.id ? "✓ Copied" : "Copy"}
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-gray-500">Belum ada informasi hadiah</p>
-            )}
+                  ) : (
+                    <p className="text-center text-gray-500">Belum ada informasi hadiah</p>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </section>
 
