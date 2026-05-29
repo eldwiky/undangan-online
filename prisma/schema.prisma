@@ -82,6 +82,9 @@ model Invitation {
   // Template
   template      String         @default("elegant")
 
+  // Language
+  language      String         @default("id")
+
   // OG Image for link preview
   ogImage       String?       // Custom OG image URL for link preview
 

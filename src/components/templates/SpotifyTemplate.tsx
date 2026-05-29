@@ -8,6 +8,7 @@ import FallingPetals from "@/components/invitation/FallingPetals";
 import ScrollDots from "@/components/invitation/ScrollDots";
 import TypewriterText from "@/components/invitation/TypewriterText";
 import { playConfettiSound } from "@/lib/sounds";
+import { getTranslations, formatDate, type Translations } from "@/lib/i18n";
 
 interface SpotifyTemplateProps {
   invitation: SerializedInvitation;
@@ -97,6 +98,7 @@ function saveTheDate(invitation: SerializedInvitation) {
 }
 
 export default function SpotifyTemplate({ invitation, guestName }: SpotifyTemplateProps) {
+  const t = getTranslations(invitation.language);
   const [isOpened, setIsOpened] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -340,7 +342,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
               transition={{ delay: 2.1, duration: 0.6 }}
               className="mb-8"
             >
-              <p className="text-xs tracking-widest text-gray-500 mb-1">Dear,</p>
+              <p className="text-xs tracking-widest text-gray-500 mb-1">{t.kepada}</p>
               <p className="text-lg font-medium text-white">
                 <TypewriterText text={guestName} speed={80} delay={2200} />
               </p>
@@ -358,7 +360,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             onClick={() => { setIsOpened(true); }}
             className="px-8 py-3 bg-[#1DB954] text-black font-bold rounded-full hover:bg-[#1ed760] transition-colors shadow-lg"
           >
-            Buka Undangan
+            {t.openInvitation}
           </motion.button>
 
           <motion.div
@@ -520,9 +522,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
               {invitation.groomName} <span className="text-[#1DB954]">&</span> {invitation.brideName}
             </h1>
             <p className="text-gray-300 text-lg">
-              {new Date(invitation.eventDate).toLocaleDateString("id-ID", {
-                weekday: "long", year: "numeric", month: "long", day: "numeric",
-              })}
+              {formatDate(invitation.eventDate, invitation.language)}
             </p>
             {invitation.hashtag && (
               <p className="mt-3 text-[#1DB954] font-medium flex items-center gap-1">
@@ -543,7 +543,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                   </div>
                 </div>
               </div>
-              <p className="text-xs tracking-widest uppercase text-gray-500 mb-2">Kami Yang Berbahagia</p>
+              <p className="text-xs tracking-widest uppercase text-gray-500 mb-2">{t.kamiYangBerbahagia}</p>
               <h2 className="text-2xl md:text-3xl font-bold text-white">
                 {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
               </h2>
@@ -593,7 +593,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             className="max-w-4xl mx-auto"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-10 text-center">
-              Mempelai
+              {t.mempelai}
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Groom */}
@@ -657,18 +657,18 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             className="max-w-4xl mx-auto"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-10 text-center">
-              Acara Pernikahan
+              {t.acaraPernikahan}
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(invitation.akadDate || invitation.akadTime) && (
                 <motion.div variants={fadeInUp} className="bg-[#1a1a1a] rounded-xl p-6 border border-[#282828]">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-8 h-8 rounded-full bg-[#1DB954]/20 flex items-center justify-center text-sm">💍</span>
-                    <h3 className="text-lg font-bold">Akad Nikah</h3>
+                    <h3 className="text-lg font-bold">{t.akadNikah}</h3>
                   </div>
                   {invitation.akadDate && (
                     <p className="text-gray-300">
-                      {new Date(invitation.akadDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                      {formatDate(invitation.akadDate, invitation.language)}
                     </p>
                   )}
                   {invitation.akadTime && <p className="text-gray-400 text-sm mt-1">{invitation.akadTime}{invitation.akadTimeEnd ? ` - ${invitation.akadTimeEnd}` : ""} WIB</p>}
@@ -676,7 +676,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                   {invitation.akadLocation && <p className="text-gray-400 text-sm mt-1">{invitation.akadLocation}</p>}
                   {invitation.akadMapsUrl && (
                     <a href={invitation.akadMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-4 py-2 text-sm bg-[#1DB954] text-black font-medium rounded-full hover:bg-[#1ed760] transition-colors">
-                      📍 Buka Maps
+                      📍 {t.bukaMaps}
                     </a>
                   )}
                 </motion.div>
@@ -686,11 +686,11 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                 <motion.div variants={fadeInUp} className="bg-[#1a1a1a] rounded-xl p-6 border border-[#282828]">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-8 h-8 rounded-full bg-[#1DB954]/20 flex items-center justify-center text-sm">🎉</span>
-                    <h3 className="text-lg font-bold">Resepsi</h3>
+                    <h3 className="text-lg font-bold">{t.resepsi}</h3>
                   </div>
                   {invitation.resepsiDate && (
                     <p className="text-gray-300">
-                      {new Date(invitation.resepsiDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                      {formatDate(invitation.resepsiDate, invitation.language)}
                     </p>
                   )}
                   {invitation.resepsiTime && <p className="text-gray-400 text-sm mt-1">{invitation.resepsiTime}{invitation.resepsiTimeEnd ? ` - ${invitation.resepsiTimeEnd}` : ""} WIB</p>}
@@ -698,7 +698,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                   {invitation.resepsiLocation && <p className="text-gray-400 text-sm mt-1">{invitation.resepsiLocation}</p>}
                   {invitation.resepsiMapsUrl && (
                     <a href={invitation.resepsiMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-4 py-2 text-sm bg-[#1DB954] text-black font-medium rounded-full hover:bg-[#1ed760] transition-colors">
-                      📍 Buka Maps
+                      📍 {t.bukaMaps}
                     </a>
                   )}
                 </motion.div>
@@ -709,14 +709,14 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             {!invitation.akadDate && !invitation.resepsiDate && (
               <motion.div variants={fadeInUp} className="bg-[#1a1a1a] rounded-xl p-6 border border-[#282828] max-w-md mx-auto text-center">
                 <p className="text-gray-300">
-                  {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                  {formatDate(invitation.eventDate, invitation.language)}
                 </p>
                 {invitation.eventTime && <p className="text-gray-400 text-sm mt-1">{invitation.eventTime} WIB</p>}
                 {invitation.locationName && <p className="text-white font-medium mt-3">{invitation.locationName}</p>}
                 {invitation.location && <p className="text-gray-400 text-sm mt-1">{invitation.location}</p>}
                 {invitation.mapsUrl && (
                   <a href={invitation.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-4 py-2 text-sm bg-[#1DB954] text-black font-medium rounded-full hover:bg-[#1ed760] transition-colors">
-                    📍 Buka Maps
+                    📍 {t.bukaMaps}
                   </a>
                 )}
               </motion.div>
@@ -748,7 +748,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
               className="max-w-2xl mx-auto"
             >
               <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-10 text-center">
-                Our Love Story
+                {t.ceritaCinta}
               </motion.h2>
               <div className="relative">
                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[#282828]" />
@@ -780,7 +780,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             className="max-w-5xl mx-auto"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-10 text-center">
-              Galeri
+              {t.galeri}
             </motion.h2>
             {invitation.gallery.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -880,10 +880,10 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             className="max-w-2xl mx-auto"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-4 text-center">
-              Hadiah
+              {t.hadiah}
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-gray-400 text-center mb-8 text-sm">
-              Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih, kami menyediakan informasi berikut.
+              {t.pesanHadiah}
             </motion.p>
             <motion.div variants={fadeInUp} className="text-center mb-6">
               <button
@@ -891,7 +891,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                 className="px-6 py-3 rounded-full text-black font-bold text-sm hover:bg-[#1ed760] transition-colors cursor-pointer"
                 style={{ backgroundColor: "#1DB954" }}
               >
-                {showGift ? "Sembunyikan" : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>Kirim Hadiah</>)}
+                {showGift ? t.sembunyikan : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>{t.kirimHadiah}</>)}
               </button>
             </motion.div>
             <AnimatePresence>
@@ -924,7 +924,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                                 : "bg-[#282828] text-white hover:bg-[#333]"
                             }`}
                           >
-                            {copiedAccount === account.id ? "✓ Copied" : "Copy"}
+                            {copiedAccount === account.id ? `✓ ${t.tersalin}` : t.salin}
                           </button>
                         </motion.div>
                       ))}
@@ -948,7 +948,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             className="max-w-2xl mx-auto"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold mb-8 text-center">
-              RSVP & Ucapan
+              {t.ucapanDoa}
             </motion.h2>
 
             {/* Form */}
@@ -959,36 +959,36 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             >
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Nama</label>
+                  <label className="text-sm text-gray-400 block mb-1">{t.nama}</label>
                   <input
                     type="text"
                     value={commentName}
                     onChange={(e) => setCommentName(e.target.value)}
                     className="w-full bg-[#282828] border border-[#333] rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1DB954] transition-colors"
-                    placeholder="Nama Anda"
+                    placeholder={t.nama}
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Kehadiran</label>
+                  <label className="text-sm text-gray-400 block mb-1">{t.kehadiran}</label>
                   <select
                     value={commentAttendance}
                     onChange={(e) => setCommentAttendance(e.target.value)}
                     className="w-full bg-[#282828] border border-[#333] rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#1DB954] transition-colors"
                   >
-                    <option value="hadir">Hadir</option>
-                    <option value="tidak_hadir">Tidak Hadir</option>
+                    <option value="hadir">{t.hadir}</option>
+                    <option value="tidak_hadir">{t.tidakHadir}</option>
                     <option value="ragu">Masih Ragu</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Ucapan</label>
+                  <label className="text-sm text-gray-400 block mb-1">{t.ucapan}</label>
                   <textarea
                     value={commentMessage}
                     onChange={(e) => setCommentMessage(e.target.value)}
                     rows={3}
                     className="w-full bg-[#282828] border border-[#333] rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#1DB954] transition-colors resize-none"
-                    placeholder="Tulis ucapan untuk mempelai..."
+                    placeholder={t.ucapan}
                     required
                   />
                 </div>
@@ -996,7 +996,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                   type="submit"
                   className="w-full py-3 bg-[#1DB954] text-black font-bold rounded-full hover:bg-[#1ed760] transition-colors"
                 >
-                  Kirim Ucapan
+                  {t.kirimUcapan}
                 </button>
               </div>
             </motion.form>
@@ -1018,7 +1018,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                           ? "bg-red-500/20 text-red-400"
                           : "bg-yellow-500/20 text-yellow-400"
                       }`}>
-                        {comment.attendance === "tidak_hadir" ? "Tidak Hadir" : comment.attendance === "ragu" ? "Ragu" : "Hadir"}
+                        {comment.attendance === "tidak_hadir" ? t.tidakHadir : comment.attendance === "ragu" ? "Ragu" : t.hadir}
                       </span>
                     </div>
                     <p className="text-gray-400 text-sm">{comment.message}</p>
@@ -1030,7 +1030,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500 py-8">Belum ada ucapan. Jadilah yang pertama!</p>
+                <p className="text-center text-gray-500 py-8">{t.belumAdaUcapan}</p>
               )}
             </div>
           </motion.div>
@@ -1038,14 +1038,14 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
 
         {/* Footer */}
         <footer className="py-12 px-6 text-center">
-          <p className="text-gray-500 text-sm mb-2">Terima kasih atas doa & kehadiran Anda</p>
+          <p className="text-gray-500 text-sm mb-2">{t.terimaKasih}</p>
           <p className="text-xl font-bold text-white">
             {invitation.groomName} <span className="text-[#1DB954]">&</span> {invitation.brideName}
           </p>
           {invitation.hashtag && (
             <p className="text-sm text-[#1DB954] mt-2">{invitation.hashtag}</p>
           )}
-          <p className="text-xs text-gray-600 mt-6">Made with 💚</p>
+          <p className="text-xs text-gray-600 mt-6">{t.madeWith.replace("♥", "💚")}</p>
         </footer>
       </div>
 

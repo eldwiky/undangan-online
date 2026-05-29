@@ -181,6 +181,9 @@ export async function PUT(
     // WhatsApp message template
     const messageTemplate = "messageTemplate" in body ? (body.messageTemplate || null) : undefined;
 
+    // Language
+    const language = "language" in body ? (body.language || "id") : undefined;
+
     // Update title based on new names
     const title = `Pernikahan ${groomName} & ${brideName}`;
 
@@ -222,6 +225,7 @@ export async function PUT(
         ogImage,
         heroNickname,
         messageTemplate,
+        language,
       },
     });
 

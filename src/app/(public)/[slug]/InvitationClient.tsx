@@ -14,6 +14,7 @@ import { playConfettiSound } from "@/lib/sounds";
 import SpotifyTemplate from "@/components/templates/SpotifyTemplate";
 import DoodleTemplate from "@/components/templates/DoodleTemplate";
 import TinderTemplate from "@/components/templates/TinderTemplate";
+import { getTranslations, formatDate as i18nFormatDate } from "@/lib/i18n";
 
 // Serialized types
 export interface SerializedGallery {
@@ -98,6 +99,7 @@ export interface SerializedInvitation {
   musicUrl: string | null;
   hashtag: string | null;
   template: string;
+  language: string;
   createdAt: string;
   updatedAt: string;
   gallery: SerializedGallery[];
@@ -203,9 +205,10 @@ function saveTheDate(invitation: SerializedInvitation) {
 }
 
 // Countdown component inline
-function CountdownSection({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
+function CountdownSection({ eventDate, onReachZero, language }: { eventDate: string; onReachZero?: () => void; language: string }) {
   const [countdown, setCountdown] = useState(calcCountdown(new Date(eventDate)));
   const wasPastRef = useRef(countdown.isPast);
+  const ct = getTranslations(language);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -230,16 +233,16 @@ function CountdownSection({ eventDate, onReachZero }: { eventDate: string; onRea
         viewport={{ once: true }}
         className="text-gray-500 italic text-center"
       >
-        Acara telah berlangsung
+        {ct.acaraTelahBerlangsung}
       </motion.p>
     );
   }
 
   const units = [
-    { value: countdown.days, label: "Hari" },
-    { value: countdown.hours, label: "Jam" },
-    { value: countdown.minutes, label: "Menit" },
-    { value: countdown.seconds, label: "Detik" },
+    { value: countdown.days, label: ct.hari },
+    { value: countdown.hours, label: ct.jam },
+    { value: countdown.minutes, label: ct.menit },
+    { value: countdown.seconds, label: ct.detik },
   ];
 
   return (
@@ -337,6 +340,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
   const mainRef = useRef<HTMLElement>(null);
   const searchParams = useSearchParams();
   const guestName = searchParams.get("to");
+  const t = getTranslations(invitation.language);
 
   // Template routing: render Spotify template if selected
   if (invitation.template === "spotify") {
@@ -393,7 +397,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                 </div>
               </div>
             </div>
-            <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">Kami Yang Berbahagia</p>
+            <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">{t.kamiYangBerbahagia}</p>
             <h2 className="text-3xl font-serif text-gray-800">
               {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
             </h2>
@@ -447,7 +451,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
             variants={fadeUp}
             className="text-3xl font-serif text-center text-gray-800 mb-14"
           >
-            Mempelai
+            {t.mempelai}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
@@ -518,9 +522,9 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           className="max-w-2xl mx-auto text-center"
         >
           <motion.h2 variants={fadeUp} className="text-3xl font-serif text-gray-800 mb-10">
-            Menghitung Hari
+            {t.menghitungHari}
           </motion.h2>
-          <CountdownSection eventDate={invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} />
+          <CountdownSection eventDate={invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} language={invitation.language} />
         </motion.div>
       </section>
 
@@ -536,7 +540,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           className="max-w-3xl mx-auto"
         >
           <motion.h2 variants={fadeUp} className="text-3xl font-serif text-center text-gray-800 mb-12">
-            Acara Pernikahan
+            {t.acaraPernikahan}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -545,10 +549,10 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                 <div className="w-12 h-12 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
                   <span className="text-amber-700 text-lg">💍</span>
                 </div>
-                <h3 className="text-xl font-serif text-gray-800 mb-4">Akad Nikah</h3>
+                <h3 className="text-xl font-serif text-gray-800 mb-4">{t.akadNikah}</h3>
                 {invitation.akadDate && (
                   <p className="text-gray-600 font-medium">
-                    {new Date(invitation.akadDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                    {i18nFormatDate(invitation.akadDate, invitation.language)}
                   </p>
                 )}
                 {invitation.akadTime && <p className="text-gray-500 mt-1">{invitation.akadTime}{invitation.akadTimeEnd ? ` - ${invitation.akadTimeEnd}` : ""} WIB</p>}
@@ -556,7 +560,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                 {invitation.akadLocation && <p className="text-sm text-gray-500 mt-1">{invitation.akadLocation}</p>}
                 {invitation.akadMapsUrl && (
                   <a href={invitation.akadMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-5 py-2 text-sm bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors shadow-sm">
-                    📍 Buka Maps
+                    📍 {t.bukaMaps}
                   </a>
                 )}
               </motion.div>
@@ -567,10 +571,10 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                 <div className="w-12 h-12 mx-auto mb-4 bg-rose-100 rounded-full flex items-center justify-center">
                   <span className="text-rose-600 text-lg">🎉</span>
                 </div>
-                <h3 className="text-xl font-serif text-gray-800 mb-4">Resepsi</h3>
+                <h3 className="text-xl font-serif text-gray-800 mb-4">{t.resepsi}</h3>
                 {invitation.resepsiDate && (
                   <p className="text-gray-600 font-medium">
-                    {new Date(invitation.resepsiDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                    {i18nFormatDate(invitation.resepsiDate, invitation.language)}
                   </p>
                 )}
                 {invitation.resepsiTime && <p className="text-gray-500 mt-1">{invitation.resepsiTime}{invitation.resepsiTimeEnd ? ` - ${invitation.resepsiTimeEnd}` : ""} WIB</p>}
@@ -578,7 +582,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                 {invitation.resepsiLocation && <p className="text-sm text-gray-500 mt-1">{invitation.resepsiLocation}</p>}
                 {invitation.resepsiMapsUrl && (
                   <a href={invitation.resepsiMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-5 py-2 text-sm bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-colors shadow-sm">
-                    📍 Buka Maps
+                    📍 {t.bukaMaps}
                   </a>
                 )}
               </motion.div>
@@ -589,14 +593,14 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           {!invitation.akadDate && !invitation.resepsiDate && (
             <motion.div variants={fadeUp} className="text-center p-8 bg-white rounded-2xl shadow-md border border-gray-100 max-w-md mx-auto">
               <p className="text-gray-600 font-medium">
-                {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                {i18nFormatDate(invitation.eventDate, invitation.language)}
               </p>
               {invitation.eventTime && <p className="text-gray-500 mt-1">{invitation.eventTime} WIB</p>}
               {invitation.locationName && <p className="text-gray-700 font-medium mt-4">{invitation.locationName}</p>}
               {invitation.location && <p className="text-sm text-gray-500 mt-1">{invitation.location}</p>}
               {invitation.mapsUrl && (
                 <a href={invitation.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 px-5 py-2 text-sm bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors">
-                  📍 Buka Maps
+                  📍 {t.bukaMaps}
                 </a>
               )}
             </motion.div>
@@ -660,7 +664,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
               className="max-w-4xl mx-auto"
             >
               <motion.h2 variants={fadeUp} className="text-3xl font-serif text-center text-gray-800 mb-10">
-                Galeri
+                {t.galeri}
               </motion.h2>
               <GallerySection photos={invitation.gallery} />
             </motion.div>
@@ -681,7 +685,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
               className="max-w-2xl mx-auto"
             >
               <motion.h2 variants={fadeUp} className="text-3xl font-serif text-center text-gray-800 mb-14">
-                Our Love Story
+                {t.ceritaCinta}
               </motion.h2>
 
               <div className="relative">
@@ -723,7 +727,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                   transition={{ duration: 0.6 }}
                   className="text-xl font-serif text-gray-800 mb-4"
                 >
-                  Hadiah Digital
+                  {t.hadiah}
                 </motion.h3>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -732,7 +736,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="text-sm text-gray-500 mb-6"
                 >
-                  Doa restu Anda merupakan karunia yang sangat berarti bagi kami.
+                  {t.pesanHadiah}
                 </motion.p>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -745,7 +749,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
                     onClick={() => setShowGift(!showGift)}
                     className="px-6 py-3 rounded-full text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer"
                   >
-                    {showGift ? "Sembunyikan" : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>Kirim Hadiah</>)}
+                    {showGift ? t.sembunyikan : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>{t.kirimHadiah}</>)}
                   </button>
                 </motion.div>
                 <AnimatePresence>
@@ -812,14 +816,14 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <p className="text-gray-500 text-sm mb-3">Terima kasih atas doa & kehadiran Anda</p>
+          <p className="text-gray-500 text-sm mb-3">{t.terimaKasih}</p>
           <p className="text-2xl font-serif text-gray-800">
             {invitation.groomName} & {invitation.brideName}
           </p>
           {invitation.hashtag && (
             <p className="text-sm text-amber-600 mt-3 font-medium">{invitation.hashtag}</p>
           )}
-          <p className="text-xs text-gray-400 mt-8">Made with ♥</p>
+          <p className="text-xs text-gray-400 mt-8">{t.madeWith}</p>
         </motion.div>
       </footer>
 

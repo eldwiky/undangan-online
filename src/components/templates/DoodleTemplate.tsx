@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Caveat, Patrick_Hand } from "next/font/google";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 import { calculateCountdown } from "@/lib/utils";
+import { getTranslations, formatDate, type Translations } from "@/lib/i18n";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
 import Confetti from "@/components/invitation/Confetti";
 import FallingPetals from "@/components/invitation/FallingPetals";
@@ -373,7 +374,7 @@ function SketchyRectBorder({
 }
 
 // ═══════════ COUNTDOWN SUB-COMPONENT ═══════════
-function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
+function DoodleCountdown({ eventDate, onReachZero, t }: { eventDate: string; onReachZero?: () => void; t: Translations }) {
   const [countdown, setCountdown] = useState(() =>
     calculateCountdown(new Date(eventDate))
   );
@@ -394,10 +395,10 @@ function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReac
   }, [countdown.isPast, onReachZero]);
 
   const units = [
-    { value: countdown.days, label: "Hari" },
-    { value: countdown.hours, label: "Jam" },
-    { value: countdown.minutes, label: "Menit" },
-    { value: countdown.seconds, label: "Detik" },
+    { value: countdown.days, label: t.hari },
+    { value: countdown.hours, label: t.jam },
+    { value: countdown.minutes, label: t.menit },
+    { value: countdown.seconds, label: t.detik },
   ];
 
   if (countdown.isPast) {
@@ -417,7 +418,7 @@ function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReac
             color: COLORS.accent,
           }}
         >
-          Acara telah berlangsung
+          {t.acaraTelahBerlangsung}
         </p>
       </motion.div>
     );
@@ -441,7 +442,7 @@ function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReac
             color: COLORS.accentDark,
           }}
         >
-          Menghitung Hari
+          {t.menghitungHari}
         </h2>
 
         {/* Countdown units */}
@@ -483,22 +484,11 @@ function DoodleCountdown({ eventDate, onReachZero }: { eventDate: string; onReac
   );
 }
 
-// ═══════════ INDONESIAN DATE/TIME FORMATTING HELPERS ═══════════
+// ═══════════ DATE/TIME FORMATTING HELPERS ═══════════
 
-const INDONESIAN_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-const INDONESIAN_MONTHS = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
-];
-
-/** Format date in Indonesian locale: "DayName, DD MonthName YYYY" */
+/** Format date using i18n locale: "DayName, DD MonthName YYYY" */
 export function formatIndonesianDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const dayName = INDONESIAN_DAYS[date.getDay()];
-  const day = date.getDate();
-  const month = INDONESIAN_MONTHS[date.getMonth()];
-  const year = date.getFullYear();
-  return `${dayName}, ${day} ${month} ${year}`;
+  return formatDate(dateStr, "id");
 }
 
 /** Format time: "HH:MM - HH:MM WIB" or "HH:MM WIB" */
@@ -760,6 +750,7 @@ function EventCard({
   mapsUrl,
   groomName,
   brideName,
+  t,
 }: {
   type: "akad" | "resepsi";
   date: string;
@@ -770,9 +761,10 @@ function EventCard({
   mapsUrl: string | null;
   groomName: string;
   brideName: string;
+  t: Translations;
 }) {
   const isPast = isEventPast(date);
-  const formattedDate = formatIndonesianDate(date);
+  const formattedDate = formatDate(date, t === getTranslations("en") ? "en" : "id");
   const formattedTime = formatEventTime(startTime, endTime);
 
   return (
@@ -816,7 +808,7 @@ function EventCard({
             color: COLORS.accentDark,
           }}
         >
-          {type === "akad" ? "Akad Nikah" : "Resepsi"}
+          {type === "akad" ? t.akadNikah : t.resepsi}
         </h3>
 
         {/* Date */}
@@ -876,7 +868,7 @@ function EventCard({
 }
 
 /** DoodleEvents - Events section with Akad and Resepsi cards */
-function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
+function DoodleEvents({ invitation, t }: { invitation: SerializedInvitation; t: Translations }) {
   return (
     <section id="events" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
@@ -896,7 +888,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
               color: COLORS.accentDark,
             }}
           >
-            Acara Pernikahan
+            {t.acaraPernikahan}
           </h2>
           <DoodleHeart className="opacity-70" />
         </div>
@@ -920,6 +912,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
               mapsUrl={invitation.akadMapsUrl}
               groomName={invitation.groomName}
               brideName={invitation.brideName}
+              t={t}
             />
           )}
 
@@ -935,6 +928,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
               mapsUrl={invitation.resepsiMapsUrl}
               groomName={invitation.groomName}
               brideName={invitation.brideName}
+              t={t}
             />
           )}
         </div>
@@ -948,7 +942,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Buka Maps
+              {t.bukaMaps}
             </WavyBorderButton>
           )}
 
@@ -969,7 +963,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" role="presentation">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Save the Date
+                {t.saveTheDateBtn}
               </WavyBorderButton>
             );
           })()}
@@ -980,7 +974,7 @@ function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
 }
 
 // ═══════════ GALLERY SUB-COMPONENT ═══════════
-function DoodleGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }) {
+function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"]; t: Translations }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Hide section entirely when gallery is empty
@@ -1008,7 +1002,7 @@ function DoodleGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
             className="text-3xl md:text-4xl font-bold text-center"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
           >
-            Galeri
+            {t.galeri}
           </h2>
           <DoodleHeart className="opacity-60" />
         </div>
@@ -1189,7 +1183,7 @@ function GiftBoxDoodle({ className = "" }: { className?: string }) {
 }
 
 // ═══════════ GIFT SECTION SUB-COMPONENT ═══════════
-function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
+function DoodleGift({ invitation, t }: { invitation: SerializedInvitation; t: Translations }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showGift, setShowGift] = useState(false);
 
@@ -1231,7 +1225,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
             className="text-3xl md:text-4xl font-bold"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
           >
-            Hadiah
+            {t.hadiah}
           </h2>
           <GiftBoxDoodle className="opacity-70 scale-x-[-1]" />
         </div>
@@ -1240,7 +1234,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
           className="text-base md:text-lg mb-8"
           style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
         >
-          Berbagi kebahagiaan bersama Anda merupakan hadiah terindah bagi kami.
+          {t.pesanHadiah}
         </p>
 
         {/* Toggle button */}
@@ -1249,7 +1243,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
           className="relative inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-md cursor-pointer min-h-[44px] min-w-[44px] transition-transform hover:scale-105 active:scale-95 mb-6"
           style={{ color: COLORS.white, backgroundColor: COLORS.accent, fontFamily: "var(--font-patrick-hand)" }}
         >
-          {showGift ? "Sembunyikan" : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>Kirim Hadiah</>)}
+          {showGift ? t.sembunyikan : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>{t.kirimHadiah}</>)}
         </button>
 
         {/* Gift account cards - collapsible */}
@@ -1352,7 +1346,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
                       <rect x="5" y="5" width="9" height="9" rx="1" />
                       <path d="M2 11 L2 3 C2 2.4 2.4 2 3 2 L11 2" />
                     </svg>
-                    {copiedId === account.id ? "Tersalin!" : "Salin"}
+                    {copiedId === account.id ? t.tersalin : t.salin}
                   </span>
                 </button>
 
@@ -1386,7 +1380,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
 }
 
 // ═══════════ SHARE & FOOTER SUB-COMPONENT ═══════════
-function DoodleShareFooter({ invitation }: { invitation: SerializedInvitation }) {
+function DoodleShareFooter({ invitation, t }: { invitation: SerializedInvitation; t: Translations }) {
   const [copied, setCopied] = useState(false);
 
   const copyLink = () => {
@@ -1451,7 +1445,7 @@ function DoodleShareFooter({ invitation }: { invitation: SerializedInvitation })
             className="text-3xl md:text-4xl font-bold mb-4"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
           >
-            Terima Kasih
+            {t.terimaKasih}
           </p>
 
           {/* Couple names */}
@@ -1483,7 +1477,7 @@ function DoodleShareFooter({ invitation }: { invitation: SerializedInvitation })
             className="text-sm mt-8"
             style={{ color: COLORS.textLight }}
           >
-            Made with ♥
+            {t.madeWith}
           </p>
         </motion.div>
       </motion.div>
@@ -1492,14 +1486,14 @@ function DoodleShareFooter({ invitation }: { invitation: SerializedInvitation })
 }
 
 // ═══════════ COMMENTS SUB-COMPONENT ═══════════
-function DoodleComments({ invitationId, comments: initialComments }: { invitationId: string; comments: SerializedComment[] }) {
+function DoodleComments({ invitationId, comments: initialComments, t }: { invitationId: string; comments: SerializedComment[]; t: Translations }) {
   const [comments, setComments] = useState<SerializedComment[]>(
     [...initialComments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   );
   const [form, setForm] = useState({
     guestName: "",
     message: "",
-    attendance: "Hadir" as "Hadir" | "Tidak Hadir",
+    attendance: t.hadir as string,
   });
   const [errors, setErrors] = useState<{ guestName?: string; message?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1531,14 +1525,14 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
   const validate = useCallback((): boolean => {
     const newErrors: { guestName?: string; message?: string } = {};
     if (!form.guestName.trim()) {
-      newErrors.guestName = "Nama wajib diisi";
+      newErrors.guestName = t.namaWajib;
     }
     if (!form.message.trim()) {
-      newErrors.message = "Pesan wajib diisi";
+      newErrors.message = t.pesanWajib;
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [form.guestName, form.message]);
+  }, [form.guestName, form.message, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1555,7 +1549,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
         body: JSON.stringify({
           guestName: form.guestName,
           message: form.message,
-          attendance: form.attendance === "Hadir" ? "hadir" : form.attendance === "Tidak Hadir" ? "tidak_hadir" : "ragu",
+          attendance: form.attendance === t.hadir ? "hadir" : form.attendance === t.tidakHadir ? "tidak_hadir" : "ragu",
         }),
       });
 
@@ -1564,7 +1558,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
         throw new Error(data.message || "Gagal mengirim, coba lagi");
       }
 
-      setForm({ guestName: "", message: "", attendance: "Hadir" });
+      setForm({ guestName: "", message: "", attendance: t.hadir });
       setErrors({});
       setSubmitSuccess(true);
       setTimeout(() => setSubmitSuccess(false), 3000);
@@ -1621,7 +1615,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
             className="text-3xl md:text-4xl font-bold text-center"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
           >
-            Ucapan &amp; Doa
+            {t.ucapanDoa}
           </h2>
           <DoodleHeart className="opacity-60" />
         </div>
@@ -1660,7 +1654,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
               className="block text-sm font-medium mb-1.5"
               style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
             >
-              Nama
+              {t.nama}
             </label>
             <div className="relative">
               <input
@@ -1696,7 +1690,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
               className="block text-sm font-medium mb-1.5"
               style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
             >
-              Ucapan
+              {t.ucapan}
             </label>
             <div className="relative">
               <textarea
@@ -1731,10 +1725,10 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
               className="block text-sm font-medium mb-2"
               style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
             >
-              Kehadiran
+              {t.kehadiran}
             </label>
             <div className="flex flex-wrap gap-2">
-              {(["Hadir", "Tidak Hadir"] as const).map((option) => (
+              {([t.hadir, t.tidakHadir] as const).map((option) => (
                 <button
                   key={option}
                   type="button"
@@ -1793,7 +1787,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
                 </filter>
               </defs>
             </svg>
-            {isSubmitting ? "Mengirim..." : "Kirim Ucapan"}
+            {isSubmitting ? t.mengirim : t.kirimUcapan}
           </button>
 
           {submitSuccess && (
@@ -1801,7 +1795,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
               className="text-sm text-center mt-3"
               style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.accent }}
             >
-              Ucapan berhasil dikirim!
+              {t.ucapanBerhasil}
             </p>
           )}
           {submitError && (
@@ -1883,7 +1877,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
             className="text-center text-sm"
             style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}
           >
-            Belum ada ucapan. Jadilah yang pertama!
+            {t.belumAdaUcapan}
           </p>
         )}
 
@@ -1902,10 +1896,12 @@ function DoodleOpeningScreen({
   invitation,
   guestName,
   onOpen,
+  t,
 }: {
   invitation: SerializedInvitation;
   guestName?: string | null;
   onOpen: () => void;
+  t: Translations;
 }) {
   // Determine event date for the illustration
   const eventDate = invitation.akadDate || invitation.resepsiDate || invitation.eventDate;
@@ -1937,7 +1933,7 @@ function DoodleOpeningScreen({
             color: COLORS.textLight,
           }}
         >
-          Save the Date
+          {t.saveTheDate}
         </p>
 
         {/* Wedding date in DD.MM.YYYY format */}
@@ -1988,7 +1984,7 @@ function DoodleOpeningScreen({
                 color: COLORS.textLight,
               }}
             >
-              Kepada,
+              {t.kepada}
             </p>
             <TypewriterText
               text={guestName}
@@ -2054,7 +2050,7 @@ function DoodleOpeningScreen({
               </filter>
             </defs>
           </svg>
-          <span className="relative z-10">Open Invitation</span>
+          <span className="relative z-10">{t.openInvitation}</span>
         </button>
       </div>
     </div>
@@ -2069,7 +2065,7 @@ function formatLoveStoryDate(dateStr: string): string {
 }
 
 /** DoodleLoveStory: vertical timeline with hand-drawn connectors */
-function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStories"] }) {
+function DoodleLoveStory({ stories, t }: { stories: SerializedInvitation["loveStories"]; t: Translations }) {
   // Sort stories by order ascending
   const sortedStories = [...stories].sort((a, b) => a.order - b.order);
 
@@ -2091,7 +2087,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
             className="text-3xl md:text-4xl font-bold text-center"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
           >
-            Cerita Cinta
+            {t.ceritaCinta}
           </h2>
           <DoodleHeart className="opacity-60" />
         </div>
@@ -2305,6 +2301,7 @@ const SCROLL_SECTIONS = [
 export default function DoodleTemplate({ invitation, guestName }: DoodleTemplateProps) {
   const [isOpened, setIsOpened] = useState(false);
   const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
+  const t = getTranslations(invitation.language);
 
   useEffect(() => {
     // Confetti shows on open (no sound)
@@ -2326,6 +2323,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
               invitation={invitation}
               guestName={guestName}
               onOpen={() => setIsOpened(true)}
+              t={t}
             />
           </motion.div>
         ) : (
@@ -2359,7 +2357,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                   </div>
 
                   <p className="text-sm md:text-base tracking-[0.2em] uppercase mb-6" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
-                    Kami Yang Berbahagia
+                    {t.kamiYangBerbahagia}
                   </p>
                   <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
                     {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
@@ -2596,13 +2594,14 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             <DoodleCountdown
               eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate}
               onReachZero={() => { setShowCountdownConfetti(true); }}
+              t={t}
             />
 
             <DoodleDivider />
 
             {/* ═══════════ EVENTS SECTION ═══════════ */}
             {(invitation.akadDate || invitation.resepsiDate) && (
-              <DoodleEvents invitation={invitation} />
+              <DoodleEvents invitation={invitation} t={t} />
             )}
 
             <DoodleDivider />
@@ -2610,7 +2609,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             {/* ═══════════ GALLERY SECTION ═══════════ */}
             {invitation.gallery && invitation.gallery.length > 0 && (
               <>
-                <DoodleGallery gallery={invitation.gallery} />
+                <DoodleGallery gallery={invitation.gallery} t={t} />
                 <DoodleDivider />
               </>
             )}
@@ -2618,26 +2617,26 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             {/* ═══════════ LOVE STORY SECTION ═══════════ */}
             {invitation.loveStories && invitation.loveStories.length > 0 && (
               <>
-                <DoodleLoveStory stories={invitation.loveStories} />
+                <DoodleLoveStory stories={invitation.loveStories} t={t} />
                 <DoodleDivider />
               </>
             )}
 
             {/* ═══════════ COMMENTS SECTION ═══════════ */}
-            <DoodleComments invitationId={invitation.id} comments={invitation.comments} />
+            <DoodleComments invitationId={invitation.id} comments={invitation.comments} t={t} />
 
             <DoodleDivider />
 
             {/* ═══════════ GIFT SECTION ═══════════ */}
             {invitation.giftAccounts && invitation.giftAccounts.length > 0 && (
               <>
-                <DoodleGift invitation={invitation} />
+                <DoodleGift invitation={invitation} t={t} />
                 <DoodleDivider />
               </>
             )}
 
             {/* ═══════════ SHARE & FOOTER SECTION ═══════════ */}
-            <DoodleShareFooter invitation={invitation} />
+            <DoodleShareFooter invitation={invitation} t={t} />
 
             {/* ═══════════ MUSIC PLAYER ═══════════ */}
             {invitation.musicUrl && (

@@ -34,6 +34,7 @@ interface InfoFormData {
   description: string;
   hashtag: string;
   ogImage: string;
+  language: string;
   // Akad
   akadDate: string;
   akadTime: string;
@@ -157,6 +158,7 @@ export default function EditInvitationPage() {
     description: "",
     hashtag: "",
     ogImage: "",
+    language: "id",
     akadDate: "",
     akadTime: "",
     akadTimeEnd: "",
@@ -228,6 +230,7 @@ export default function EditInvitationPage() {
           description: data.description || "",
           hashtag: (data as unknown as { hashtag?: string }).hashtag || "",
           ogImage: (data as unknown as { ogImage?: string }).ogImage || "",
+          language: (data as unknown as { language?: string }).language || "id",
           akadDate: (data as unknown as { akadDate?: string }).akadDate ? new Date((data as unknown as { akadDate: string }).akadDate).toISOString().split("T")[0] : "",
           akadTime: (data as unknown as { akadTime?: string }).akadTime || "",
           akadTimeEnd: (data as unknown as { akadTimeEnd?: string }).akadTimeEnd || "",
@@ -282,6 +285,7 @@ export default function EditInvitationPage() {
         hashtag: infoForm.hashtag || undefined,
         ogImage: infoForm.ogImage || undefined,
         heroNickname: infoForm.heroNickname || undefined,
+        language: infoForm.language || "id",
         akadDate: infoForm.akadDate ? new Date(infoForm.akadDate).toISOString() : undefined,
         akadTime: infoForm.akadTime || undefined,
         akadTimeEnd: infoForm.akadTimeEnd || undefined,
@@ -450,6 +454,23 @@ function InfoAcaraSection({
 }) {
   return (
     <form onSubmit={onSave} className="space-y-6">
+      {/* Bahasa Undangan */}
+      <div>
+        <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+          Bahasa Undangan
+        </label>
+        <select
+          id="language"
+          value={form.language}
+          onChange={(e) => setForm({ ...form, language: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+        >
+          <option value="id">Indonesia</option>
+          <option value="en">English</option>
+        </select>
+        <p className="text-xs text-gray-500 mt-1">Pilih bahasa yang digunakan pada undangan</p>
+      </div>
+
       {/* OG Image - Link Preview */}
       <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/50">
         <h4 className="text-sm font-semibold text-gray-700 mb-2">Foto Preview Link (OG Image)</h4>

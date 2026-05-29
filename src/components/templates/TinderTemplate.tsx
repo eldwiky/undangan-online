@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 import { calculateCountdown } from "@/lib/utils";
+import { getTranslations, formatDate as i18nFormatDate, type Translations } from "@/lib/i18n";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
 import Confetti from "@/components/invitation/Confetti";
 import FallingPetals from "@/components/invitation/FallingPetals";
@@ -20,22 +21,6 @@ const COLORS = {
   white: "#FFFFFF",
   textMuted: "#6B7280",
 } as const;
-
-// ═══════════ INDONESIAN DATE HELPERS ═══════════
-const INDONESIAN_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-const INDONESIAN_MONTHS = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
-];
-
-function formatIndonesianDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const dayName = INDONESIAN_DAYS[date.getDay()];
-  const day = date.getDate();
-  const month = INDONESIAN_MONTHS[date.getMonth()];
-  const year = date.getFullYear();
-  return `${dayName}, ${day} ${month} ${year}`;
-}
 
 function formatEventTime(startTime: string | null, endTime: string | null): string {
   if (!startTime) return "";
@@ -166,10 +151,12 @@ function TinderOpeningScreen({
   invitation,
   guestName,
   onOpen,
+  t,
 }: {
   invitation: SerializedInvitation;
   guestName?: string | null;
   onOpen: () => void;
+  t: Translations;
 }) {
   return (
     <div
@@ -208,12 +195,12 @@ function TinderOpeningScreen({
             {invitation.groomName} ❤️ {invitation.brideName}
           </h1>
           <p className="text-sm text-gray-500 mt-2">
-            {formatIndonesianDate(invitation.eventDate)}
+            {i18nFormatDate(invitation.eventDate, invitation.language)}
           </p>
 
           {guestName && (
             <div className="mt-4 py-2 px-4 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-400">Kepada,</p>
+              <p className="text-xs text-gray-400">{t.kepada}</p>
               <p className="text-sm font-semibold text-gray-700">
                 <TypewriterText text={guestName} speed={80} delay={500} />
               </p>
@@ -267,7 +254,7 @@ function MatchTransition({ onComplete }: { onComplete: () => void }) {
 }
 
 // ═══════════ COUNTDOWN SECTION ═══════════
-function TinderCountdown({ eventDate, onReachZero }: { eventDate: string; onReachZero?: () => void }) {
+function TinderCountdown({ eventDate, onReachZero, t }: { eventDate: string; onReachZero?: () => void; t: Translations }) {
   const [countdown, setCountdown] = useState(calculateCountdown(new Date(eventDate)));
   const wasPastRef = useRef(countdown.isPast);
 
@@ -288,16 +275,16 @@ function TinderCountdown({ eventDate, onReachZero }: { eventDate: string; onReac
   if (countdown.isPast) {
     return (
       <p className="text-gray-500 italic text-center text-sm">
-        Acara telah berlangsung
+        {t.acaraTelahBerlangsung}
       </p>
     );
   }
 
   const units = [
-    { value: countdown.days, label: "Hari" },
-    { value: countdown.hours, label: "Jam" },
-    { value: countdown.minutes, label: "Menit" },
-    { value: countdown.seconds, label: "Detik" },
+    { value: countdown.days, label: t.hari },
+    { value: countdown.hours, label: t.jam },
+    { value: countdown.minutes, label: t.menit },
+    { value: countdown.seconds, label: t.detik },
   ];
 
   return (
@@ -474,7 +461,7 @@ function TinderLoveStory({ stories }: { stories: SerializedInvitation["loveStori
 }
 
 // ═══════════ COMMENTS SECTION ═══════════
-function TinderComments({ invitationId, comments: initialComments }: { invitationId: string; comments: SerializedComment[] }) {
+function TinderComments({ invitationId, comments: initialComments, t }: { invitationId: string; comments: SerializedComment[]; t: Translations }) {
   const [comments, setComments] = useState<SerializedComment[]>(
     [...initialComments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   );
@@ -512,11 +499,11 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
 
   const validate = useCallback((): boolean => {
     const newErrors: { guestName?: string; message?: string } = {};
-    if (!form.guestName.trim()) newErrors.guestName = "Nama wajib diisi";
-    if (!form.message.trim()) newErrors.message = "Pesan wajib diisi";
+    if (!form.guestName.trim()) newErrors.guestName = t.namaWajib;
+    if (!form.message.trim()) newErrors.message = t.pesanWajib;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [form.guestName, form.message]);
+  }, [form.guestName, form.message, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -567,8 +554,8 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
 
   const getAttendanceLabel = (attendance: string) => {
     switch (attendance) {
-      case "hadir": return "✓ Hadir";
-      case "tidak_hadir": return "✗ Tidak Hadir";
+      case "hadir": return `✓ ${t.hadir}`;
+      case "tidak_hadir": return `✗ ${t.tidakHadir}`;
       default: return attendance;
     }
   };
@@ -583,7 +570,7 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
             value={form.guestName}
             onChange={(e) => setForm((prev) => ({ ...prev, guestName: e.target.value }))}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
-            placeholder="Nama Anda"
+            placeholder={t.nama}
             maxLength={100}
           />
           {errors.guestName && <p className="text-xs text-red-500 mt-1">{errors.guestName}</p>}
@@ -594,25 +581,25 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
             onChange={(e) => setForm((prev) => ({ ...prev, message: e.target.value }))}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm resize-none"
             rows={3}
-            placeholder="Tulis ucapan & doa..."
+            placeholder={t.ucapan}
             maxLength={500}
           />
           {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message}</p>}
         </div>
         <div className="flex gap-2">
-          {(["Hadir", "Tidak Hadir"] as const).map((option) => (
+          {([{ key: "Hadir", label: t.hadir }, { key: "Tidak Hadir", label: t.tidakHadir }] as const).map((option) => (
             <button
-              key={option}
+              key={option.key}
               type="button"
-              onClick={() => setForm((prev) => ({ ...prev, attendance: option }))}
+              onClick={() => setForm((prev) => ({ ...prev, attendance: option.key }))}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                form.attendance === option
+                form.attendance === option.key
                   ? "text-white shadow-md"
                   : "text-gray-600 bg-gray-100 hover:bg-gray-200"
               }`}
-              style={form.attendance === option ? { background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` } : {}}
+              style={form.attendance === option.key ? { background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` } : {}}
             >
-              {option}
+              {option.label}
             </button>
           ))}
         </div>
@@ -622,9 +609,9 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
           className="w-full py-3 rounded-full text-white font-medium text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}
         >
-          {isSubmitting ? "Mengirim..." : "Kirim Ucapan 💌"}
+          {isSubmitting ? t.mengirim : `${t.kirimUcapan} 💌`}
         </button>
-        {submitSuccess && <p className="text-sm text-center text-green-600">Ucapan berhasil dikirim!</p>}
+        {submitSuccess && <p className="text-sm text-center text-green-600">{t.ucapanBerhasil}</p>}
         {submitError && <p className="text-sm text-center text-red-500">{submitError}</p>}
       </form>
 
@@ -647,14 +634,14 @@ function TinderComments({ invitationId, comments: initialComments }: { invitatio
           ))}
         </div>
       ) : (
-        <p className="text-center text-sm text-gray-400">Belum ada ucapan. Jadilah yang pertama!</p>
+        <p className="text-center text-sm text-gray-400">{t.belumAdaUcapan}</p>
       )}
     </div>
   );
 }
 
 // ═══════════ GIFT SECTION ═══════════
-function TinderGift({ invitation }: { invitation: SerializedInvitation }) {
+function TinderGift({ invitation, t }: { invitation: SerializedInvitation; t: Translations }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   if (invitation.giftAccounts.length === 0) return null;
@@ -680,7 +667,7 @@ function TinderGift({ invitation }: { invitation: SerializedInvitation }) {
               className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all"
               style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}
             >
-              {copiedId === account.id ? "Tersalin!" : "Salin"}
+              {copiedId === account.id ? t.tersalin : t.salin}
             </button>
           </div>
           {account.qrisUrl && (
@@ -715,6 +702,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
   const [phase, setPhase] = useState<"opening" | "match" | "content">("opening");
   const [showCountdownConfetti, setShowCountdownConfetti] = useState(false);
   const [showGift, setShowGift] = useState(false);
+  const t = getTranslations(invitation.language);
 
   const handleOpen = useCallback(() => {
     setPhase("match");
@@ -740,6 +728,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               invitation={invitation}
               guestName={guestName}
               onOpen={handleOpen}
+              t={t}
             />
           </motion.div>
         )}
@@ -778,7 +767,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                     </div>
                   </div>
                 </div>
-                <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">Kami Yang Berbahagia</p>
+                <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">{t.kamiYangBerbahagia}</p>
                 <h2 className="text-2xl md:text-3xl font-bold" style={{ color: "#1A1A2E" }}>
                   {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
                 </h2>
@@ -823,7 +812,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               className="mx-4 my-4 bg-white rounded-xl shadow-md p-6"
             >
               <h2 className="text-xl font-bold text-center mb-6" style={{ color: COLORS.dark }}>
-                Mempelai
+                {t.mempelai}
               </h2>
               <div className="flex flex-col md:flex-row items-center justify-center gap-8">
                 {/* Groom */}
@@ -894,9 +883,9 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               className="mx-4 my-4 bg-white rounded-xl shadow-md p-6 text-center"
             >
               <h2 className="text-xl font-bold mb-6" style={{ color: COLORS.dark }}>
-                Menghitung Hari
+                {t.menghitungHari}
               </h2>
-              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} />
+              <TinderCountdown eventDate={invitation.akadDate || invitation.resepsiDate || invitation.eventDate} onReachZero={() => { setShowCountdownConfetti(true); }} t={t} />
             </motion.section>
 
             {/* ═══════════ EVENTS ═══════════ */}
@@ -916,9 +905,9 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                       <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${COLORS.primary}20, ${COLORS.secondary}20)` }}>
                         <span className="text-sm">💍</span>
                       </div>
-                      <h3 className="text-lg font-bold" style={{ color: COLORS.dark }}>Akad Nikah</h3>
+                      <h3 className="text-lg font-bold" style={{ color: COLORS.dark }}>{t.akadNikah}</h3>
                     </div>
-                    <p className="text-sm text-gray-700 font-medium">{formatIndonesianDate(invitation.akadDate)}</p>
+                    <p className="text-sm text-gray-700 font-medium">{i18nFormatDate(invitation.akadDate, invitation.language)}</p>
                     {invitation.akadTime && (
                       <p className="text-sm text-gray-500 mt-1">{formatEventTime(invitation.akadTime, invitation.akadTimeEnd)}</p>
                     )}
@@ -926,11 +915,11 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                     {invitation.akadLocation && <p className="text-xs text-gray-500 mt-1">{invitation.akadLocation}</p>}
                     {invitation.akadMapsUrl && (
                       <a href={invitation.akadMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 px-4 py-2 text-xs text-white rounded-full" style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}>
-                        📍 Buka Maps
+                        📍 {t.bukaMaps}
                       </a>
                     )}
                     {isEventPast(invitation.akadDate) && (
-                      <p className="text-xs text-gray-400 italic mt-2">Acara telah berlangsung</p>
+                      <p className="text-xs text-gray-400 italic mt-2">{t.acaraTelahBerlangsung}</p>
                     )}
                   </div>
                 )}
@@ -942,9 +931,9 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                       <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${COLORS.primary}20, ${COLORS.secondary}20)` }}>
                         <span className="text-sm">🎉</span>
                       </div>
-                      <h3 className="text-lg font-bold" style={{ color: COLORS.dark }}>Resepsi</h3>
+                      <h3 className="text-lg font-bold" style={{ color: COLORS.dark }}>{t.resepsi}</h3>
                     </div>
-                    <p className="text-sm text-gray-700 font-medium">{formatIndonesianDate(invitation.resepsiDate)}</p>
+                    <p className="text-sm text-gray-700 font-medium">{i18nFormatDate(invitation.resepsiDate, invitation.language)}</p>
                     {invitation.resepsiTime && (
                       <p className="text-sm text-gray-500 mt-1">{formatEventTime(invitation.resepsiTime, invitation.resepsiTimeEnd)}</p>
                     )}
@@ -952,11 +941,11 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                     {invitation.resepsiLocation && <p className="text-xs text-gray-500 mt-1">{invitation.resepsiLocation}</p>}
                     {invitation.resepsiMapsUrl && (
                       <a href={invitation.resepsiMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 px-4 py-2 text-xs text-white rounded-full" style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}>
-                        📍 Buka Maps
+                        📍 {t.bukaMaps}
                       </a>
                     )}
                     {isEventPast(invitation.resepsiDate) && (
-                      <p className="text-xs text-gray-400 italic mt-2">Acara telah berlangsung</p>
+                      <p className="text-xs text-gray-400 italic mt-2">{t.acaraTelahBerlangsung}</p>
                     )}
                   </div>
                 )}
@@ -964,13 +953,13 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 {/* Fallback single event */}
                 {!invitation.akadDate && !invitation.resepsiDate && (
                   <div className="bg-white rounded-xl shadow-md p-6">
-                    <p className="text-sm text-gray-700 font-medium">{formatIndonesianDate(invitation.eventDate)}</p>
+                    <p className="text-sm text-gray-700 font-medium">{i18nFormatDate(invitation.eventDate, invitation.language)}</p>
                     {invitation.eventTime && <p className="text-sm text-gray-500 mt-1">{invitation.eventTime} WIB</p>}
                     {invitation.locationName && <p className="text-sm font-medium text-gray-700 mt-3">{invitation.locationName}</p>}
                     {invitation.location && <p className="text-xs text-gray-500 mt-1">{invitation.location}</p>}
                     {invitation.mapsUrl && (
                       <a href={invitation.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 px-4 py-2 text-xs text-white rounded-full" style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}>
-                        📍 Buka Maps
+                        📍 {t.bukaMaps}
                       </a>
                     )}
                   </div>
@@ -1010,7 +999,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 className="mx-4 my-4 bg-white rounded-xl shadow-md p-6"
               >
                 <h2 className="text-xl font-bold text-center mb-6" style={{ color: COLORS.dark }}>
-                  Galeri
+                  {t.galeri}
                 </h2>
                 <TinderGallery gallery={invitation.gallery} />
               </motion.section>
@@ -1027,7 +1016,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 className="mx-4 my-4 bg-white rounded-xl shadow-md p-6"
               >
                 <h2 className="text-xl font-bold text-center mb-6" style={{ color: COLORS.dark }}>
-                  Our Love Story
+                  {t.ceritaCinta}
                 </h2>
                 <TinderLoveStory stories={invitation.loveStories} />
               </motion.section>
@@ -1043,9 +1032,9 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               className="mx-4 my-4 bg-white rounded-xl shadow-md p-6"
             >
               <h2 className="text-xl font-bold text-center mb-6" style={{ color: COLORS.dark }}>
-                Ucapan &amp; Doa
+                {t.ucapanDoa}
               </h2>
-              <TinderComments invitationId={invitation.id} comments={invitation.comments} />
+              <TinderComments invitationId={invitation.id} comments={invitation.comments} t={t} />
             </motion.section>
 
             {/* ═══════════ GIFT ═══════════ */}
@@ -1059,10 +1048,10 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 className="mx-4 my-4 bg-white rounded-xl shadow-md p-6"
               >
                 <h2 className="text-xl font-bold text-center mb-6" style={{ color: COLORS.dark }}>
-                  Hadiah Pernikahan
+                  {t.hadiah}
                 </h2>
                 <p className="text-sm text-gray-500 text-center mb-4">
-                  Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih, kami menyediakan informasi berikut:
+                  {t.pesanHadiah}
                 </p>
                 <div className="text-center mb-4">
                   <button
@@ -1070,7 +1059,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                     className="px-6 py-3 rounded-full text-white font-medium text-sm shadow-md hover:shadow-lg transition-all cursor-pointer"
                     style={{ background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})` }}
                   >
-                    {showGift ? "Sembunyikan" : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>Kirim Hadiah</>)}
+                    {showGift ? t.sembunyikan : (<><svg className="inline w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>{t.kirimHadiah}</>)}
                   </button>
                 </div>
                 <AnimatePresence>
@@ -1082,7 +1071,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <TinderGift invitation={invitation} />
+                      <TinderGift invitation={invitation} t={t} />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -1097,7 +1086,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
               transition={{ duration: 0.6 }}
               className="mx-4 my-4 mb-24 bg-white rounded-xl shadow-md p-8 text-center"
             >
-              <p className="text-sm text-gray-500 mb-2">Terima Kasih</p>
+              <p className="text-sm text-gray-500 mb-2">{t.terimaKasih}</p>
               <p className="text-xl font-bold" style={{ color: COLORS.dark }}>
                 {invitation.groomName} & {invitation.brideName}
               </p>
@@ -1106,7 +1095,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                   {invitation.hashtag}
                 </p>
               )}
-              <p className="text-xs text-gray-400 mt-4">Made with ♥</p>
+              <p className="text-xs text-gray-400 mt-4">{t.madeWith}</p>
             </motion.footer>
 
             {/* Music Player */}
