@@ -25,6 +25,7 @@ interface InfoFormData {
   groomPhoto: string;
   bridePhoto: string;
   heroPhoto: string;
+  heroNickname: string;
   eventDate: string;
   eventTime: string;
   location: string;
@@ -147,6 +148,7 @@ export default function EditInvitationPage() {
     groomPhoto: "",
     bridePhoto: "",
     heroPhoto: "",
+    heroNickname: "",
     eventDate: "",
     eventTime: "",
     location: "",
@@ -217,6 +219,7 @@ export default function EditInvitationPage() {
           groomPhoto: (data as unknown as { groomPhoto?: string }).groomPhoto || "",
           bridePhoto: (data as unknown as { bridePhoto?: string }).bridePhoto || "",
           heroPhoto: (data as unknown as { heroPhoto?: string }).heroPhoto || "",
+          heroNickname: (data as unknown as { heroNickname?: string }).heroNickname || "",
           eventDate: eventDateStr,
           eventTime: data.eventTime || "",
           location: data.location || "",
@@ -278,6 +281,7 @@ export default function EditInvitationPage() {
         description: infoForm.description || undefined,
         hashtag: infoForm.hashtag || undefined,
         ogImage: infoForm.ogImage || undefined,
+        heroNickname: infoForm.heroNickname || undefined,
         akadDate: infoForm.akadDate ? new Date(infoForm.akadDate).toISOString() : undefined,
         akadTime: infoForm.akadTime || undefined,
         akadTimeEnd: infoForm.akadTimeEnd || undefined,
@@ -577,6 +581,19 @@ function InfoAcaraSection({
               }} />
             </label>
           )}
+        </div>
+        {/* Hero Nickname */}
+        <div className="mt-4 max-w-md mx-auto">
+          <label htmlFor="heroNickname" className="block text-sm font-medium text-gray-700 mb-1">Nama Panggilan (Hero Section)</label>
+          <input
+            id="heroNickname"
+            type="text"
+            value={form.heroNickname}
+            onChange={(e) => setForm({ ...form, heroNickname: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+            placeholder="Contoh: Dwiky & Hedi"
+          />
+          <p className="text-xs text-gray-500 mt-1">Nama yang ditampilkan di section &quot;Kami Yang Berbahagia&quot;. Kosongkan untuk menggunakan nama default.</p>
         </div>
       </div>
 

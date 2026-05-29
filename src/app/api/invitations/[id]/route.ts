@@ -175,6 +175,9 @@ export async function PUT(
     // OG Image
     const ogImage = "ogImage" in body ? (body.ogImage || null) : undefined;
 
+    // Hero Nickname
+    const heroNickname = "heroNickname" in body ? (body.heroNickname || null) : undefined;
+
     // WhatsApp message template
     const messageTemplate = "messageTemplate" in body ? (body.messageTemplate || null) : undefined;
 
@@ -217,6 +220,7 @@ export async function PUT(
         resepsiLocation,
         resepsiMapsUrl,
         ogImage,
+        heroNickname,
         messageTemplate,
       },
     });

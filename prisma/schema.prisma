@@ -25,6 +25,7 @@ model Invitation {
 
   // Hero Section Photo
   heroPhoto       String?
+  heroNickname    String?
 
   // Mempelai Pria
   groomName       String

@@ -60,6 +60,7 @@ export interface SerializedInvitation {
   slug: string;
   title: string;
   heroPhoto: string | null;
+  heroNickname: string | null;
   groomName: string;
   groomFullName: string | null;
   groomPhoto: string | null;
@@ -384,15 +385,18 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       {/* ═══════════ HERO / KAMI YANG BERBAHAGIA ═══════════ */}
       {(invitation.heroPhoto || invitation.groomPhoto) && (
         <section className="py-20 px-6">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-md mx-auto text-center">
-            <div className="w-64 h-80 md:w-72 md:h-96 mx-auto rounded-t-full overflow-hidden shadow-xl border-4 border-amber-100 mb-8">
-              <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-sm mx-auto text-center">
+            <div className="relative w-56 h-72 md:w-64 md:h-80 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-[40%_40%_4%_4%] border-2 border-amber-200 shadow-xl">
+                <div className="w-full h-full rounded-[40%_40%_3%_3%] overflow-hidden">
+                  <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+                </div>
+              </div>
             </div>
             <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">Kami Yang Berbahagia</p>
-            <h2 className="text-3xl font-serif text-gray-800">{invitation.groomName} & {invitation.brideName}</h2>
-            <p className="text-sm text-gray-500 mt-3">
-              {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-            </p>
+            <h2 className="text-3xl font-serif text-gray-800">
+              {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
+            </h2>
           </motion.div>
         </section>
       )}

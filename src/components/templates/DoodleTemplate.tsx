@@ -2349,25 +2349,45 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6 }}
-                  className="max-w-md mx-auto text-center"
+                  className="max-w-sm mx-auto text-center"
                 >
-                  {/* Photo with rounded arch shape */}
-                  <div className="w-64 h-80 md:w-72 md:h-96 mx-auto rounded-t-full overflow-hidden shadow-lg mb-8">
-                    <img
-                      src={invitation.heroPhoto || invitation.groomPhoto || ""}
-                      alt="Couple"
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Hand-drawn arch frame */}
+                  <div className="relative w-56 h-72 md:w-64 md:h-80 mx-auto mb-8">
+                    {/* Sketchy arch border SVG */}
+                    <svg
+                      className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                      viewBox="0 0 200 260"
+                      preserveAspectRatio="none"
+                      fill="none"
+                      stroke="#047857"
+                      strokeWidth="2"
+                      aria-hidden="true"
+                    >
+                      <path d="M10 260 L10 100 C10 40, 50 8, 100 8 C150 8, 190 40, 190 100 L190 260" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M6 258 L6 98 C6 36, 48 4, 100 4 C152 4, 194 36, 194 98 L194 258" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" opacity="0.4" />
+                    </svg>
+                    {/* Photo with arch clip */}
+                    <div className="w-full h-full overflow-hidden" style={{ borderRadius: "50% 50% 0 0 / 40% 40% 0 0" }}>
+                      <img
+                        src={invitation.heroPhoto || invitation.groomPhoto || ""}
+                        alt="Couple"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Leaf accents */}
+                    <div className="absolute -top-3 -left-3 opacity-50 pointer-events-none">
+                      <LeafDoodle className="-rotate-45" />
+                    </div>
+                    <div className="absolute -top-3 -right-3 opacity-50 pointer-events-none">
+                      <LeafDoodle className="rotate-45 scale-x-[-1]" />
+                    </div>
                   </div>
-                  <p className="text-sm md:text-base tracking-widest uppercase mb-3" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
+                  <p className="text-sm md:text-base tracking-widest uppercase mb-3" style={{ color: "#6B7280", fontFamily: "var(--font-patrick-hand)" }}>
                     Kami Yang Berbahagia
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
-                    {invitation.groomName} & {invitation.brideName}
+                  <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-caveat)", color: "#065F46" }}>
+                    {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
                   </h2>
-                  <p className="text-sm md:text-base" style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}>
-                    {formatIndonesianDate(invitation.eventDate)}
-                  </p>
                 </motion.div>
               </section>
             )}

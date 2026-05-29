@@ -771,12 +771,17 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
                 transition={{ duration: 0.6 }}
                 className="mx-4 my-4 bg-white rounded-xl shadow-md p-6 text-center"
               >
-                <div className="w-56 h-72 md:w-64 md:h-80 mx-auto rounded-t-full overflow-hidden shadow-lg mb-6">
-                  <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+                <div className="relative w-56 h-72 md:w-64 md:h-80 mx-auto mb-6">
+                  <div className="absolute inset-0 rounded-[40%_40%_4%_4%] bg-gradient-to-br from-[#FD267A] to-[#FF6036] p-[3px]">
+                    <div className="w-full h-full rounded-[40%_40%_3%_3%] overflow-hidden">
+                      <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
                 </div>
                 <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">Kami Yang Berbahagia</p>
-                <h2 className="text-2xl font-bold" style={{ color: COLORS.dark }}>{invitation.groomName} & {invitation.brideName}</h2>
-                <p className="text-sm text-gray-500 mt-2">{formatIndonesianDate(invitation.eventDate)}</p>
+                <h2 className="text-2xl md:text-3xl font-bold" style={{ color: "#1A1A2E" }}>
+                  {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
+                </h2>
               </motion.section>
             )}
 
