@@ -6,6 +6,12 @@ import { Caveat, Patrick_Hand } from "next/font/google";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 import { calculateCountdown } from "@/lib/utils";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
+import Confetti from "@/components/invitation/Confetti";
+import FallingPetals from "@/components/invitation/FallingPetals";
+import ScrollDots from "@/components/invitation/ScrollDots";
+import TypewriterText from "@/components/invitation/TypewriterText";
+import ParallaxElement from "@/components/invitation/ParallaxElement";
+import { playConfettiSound } from "@/lib/sounds";
 
 // ═══════════ FONTS ═══════════
 const caveat = Caveat({
@@ -389,6 +395,7 @@ function DoodleCountdown({ eventDate }: { eventDate: string }) {
   if (countdown.isPast) {
     return (
       <motion.div
+        id="countdown"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -410,6 +417,7 @@ function DoodleCountdown({ eventDate }: { eventDate: string }) {
 
   return (
     <motion.div
+      id="countdown"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -862,7 +870,7 @@ function EventCard({
 /** DoodleEvents - Events section with Akad and Resepsi cards */
 function DoodleEvents({ invitation }: { invitation: SerializedInvitation }) {
   return (
-    <section className="py-16 md:py-20 px-4 md:px-6">
+    <section id="events" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -977,7 +985,7 @@ function DoodleGallery({ gallery }: { gallery: SerializedInvitation["gallery"] }
   };
 
   return (
-    <section className="py-16 md:py-20 px-4 md:px-6">
+    <section id="gallery" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1199,7 +1207,7 @@ function DoodleGift({ invitation }: { invitation: SerializedInvitation }) {
   };
 
   return (
-    <section className="py-16 md:py-20 px-4 md:px-6">
+    <section id="gift" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1568,7 +1576,7 @@ function DoodleComments({ invitationId, comments: initialComments }: { invitatio
   };
 
   return (
-    <section className="py-16 md:py-20 px-4 md:px-6">
+    <section id="comments" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1952,15 +1960,16 @@ function DoodleOpeningScreen({
             >
               Kepada,
             </p>
-            <p
+            <TypewriterText
+              text={guestName}
+              speed={80}
+              delay={500}
               className="text-3xl md:text-4xl font-bold"
               style={{
                 fontFamily: "var(--font-caveat)",
                 color: COLORS.text,
               }}
-            >
-              {guestName}
-            </p>
+            />
           </div>
         )}
 
@@ -2037,7 +2046,7 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
   if (sortedStories.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-20 px-4 md:px-6">
+    <section id="story" className="py-16 md:py-20 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -2252,11 +2261,29 @@ function DoodleLoveStory({ stories }: { stories: SerializedInvitation["loveStori
 }
 
 // ═══════════ MAIN COMPONENT ═══════════
+const SCROLL_SECTIONS = [
+  { id: "quote", label: "Ayat" },
+  { id: "couple", label: "Mempelai" },
+  { id: "countdown", label: "Countdown" },
+  { id: "events", label: "Acara" },
+  { id: "gallery", label: "Galeri" },
+  { id: "story", label: "Love Story" },
+  { id: "comments", label: "Ucapan" },
+  { id: "gift", label: "Hadiah" },
+];
+
 export default function DoodleTemplate({ invitation, guestName }: DoodleTemplateProps) {
   const [isOpened, setIsOpened] = useState(false);
 
+  useEffect(() => {
+    if (isOpened) {
+      playConfettiSound();
+    }
+  }, [isOpened]);
+
   return (
     <div className={`${caveat.variable} ${patrickHand.variable}`}>
+      <Confetti show={isOpened} />
       <AnimatePresence mode="wait">
         {!isOpened ? (
           <motion.div
@@ -2280,9 +2307,11 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             className="min-h-screen overflow-x-hidden"
             style={{ backgroundColor: COLORS.background }}
           >
+            <FallingPetals variant="mixed" />
+            <ScrollDots sections={SCROLL_SECTIONS} accentColor="#047857" />
             {/* ═══════════ QUOTE / AYAT SECTION ═══════════ */}
             {(invitation.quoteArabic || invitation.quoteText || invitation.quoteSource) && (
-              <section className="py-16 md:py-20 px-4 md:px-6">
+              <section id="quote" className="py-16 md:py-20 px-4 md:px-6">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -2374,7 +2403,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
             <DoodleDivider />
 
             {/* ═══════════ COUPLE PROFILES SECTION ═══════════ */}
-            <section className="py-16 md:py-20 px-4 md:px-6">
+            <section id="couple" className="py-16 md:py-20 px-4 md:px-6">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -2509,10 +2538,10 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                 </div>
 
                 {/* Leaf doodle accents at bottom */}
-                <div className="flex justify-center mt-8 gap-4 opacity-40">
+                <ParallaxElement speed={0.3} className="flex justify-center mt-8 gap-4 opacity-40">
                   <LeafDoodle className="rotate-[-15deg]" />
                   <LeafDoodle className="rotate-[15deg] scale-x-[-1]" />
-                </div>
+                </ParallaxElement>
               </motion.div>
             </section>
 

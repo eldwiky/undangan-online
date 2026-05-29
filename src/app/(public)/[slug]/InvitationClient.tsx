@@ -7,6 +7,10 @@ import OpeningScreen from "@/components/invitation/OpeningScreen";
 import GiftAccounts from "@/components/invitation/GiftAccounts";
 import Comments from "@/components/invitation/Comments";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
+import Confetti from "@/components/invitation/Confetti";
+import FallingPetals from "@/components/invitation/FallingPetals";
+import ScrollDots from "@/components/invitation/ScrollDots";
+import { playConfettiSound } from "@/lib/sounds";
 import SpotifyTemplate from "@/components/templates/SpotifyTemplate";
 import DoodleTemplate from "@/components/templates/DoodleTemplate";
 import TinderTemplate from "@/components/templates/TinderTemplate";
@@ -345,17 +349,29 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
         eventDate={invitation.eventDate}
         hashtag={invitation.hashtag}
         guestName={guestName}
-        onOpen={() => setIsOpened(true)}
+        onOpen={() => { setIsOpened(true); playConfettiSound(); }}
       />
     );
   }
 
   return (
     <main ref={mainRef} className="min-h-screen bg-gradient-to-b from-[#fdf8f0] via-white to-[#fdf8f0] overflow-hidden">
+      <Confetti show={isOpened} />
+      <FallingPetals variant="petals" />
+      <ScrollDots sections={[
+        { id: "quote", label: "Ayat" },
+        { id: "couple", label: "Mempelai" },
+        { id: "countdown", label: "Countdown" },
+        { id: "events", label: "Acara" },
+        { id: "gallery", label: "Galeri" },
+        { id: "story", label: "Love Story" },
+        { id: "comments", label: "Ucapan" },
+        { id: "gift", label: "Hadiah" },
+      ]} accentColor="#d97706" />
 
       {/* ═══════════ 1. AYAT / QUOTE ═══════════ */}
       {(invitation.quoteText || invitation.quoteArabic) && (
-        <section className="py-20 px-6">
+        <section id="quote" className="py-20 px-6">
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -386,7 +402,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       <Divider />
 
       {/* ═══════════ 2. PROFIL MEMPELAI ═══════════ */}
-      <section className="py-16 px-6">
+      <section id="couple" className="py-16 px-6">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -460,7 +476,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       <Divider />
 
       {/* ═══════════ 3. COUNTDOWN ═══════════ */}
-      <section className="py-16 px-6 bg-gradient-to-b from-amber-50/50 to-transparent">
+      <section id="countdown" className="py-16 px-6 bg-gradient-to-b from-amber-50/50 to-transparent">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -478,7 +494,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       <Divider />
 
       {/* ═══════════ 4. DETAIL ACARA ═══════════ */}
-      <section className="py-16 px-6">
+      <section id="events" className="py-16 px-6">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -602,7 +618,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       {invitation.gallery.length > 0 && (
         <>
           <Divider />
-          <section className="py-16 px-6 bg-gradient-to-b from-rose-50/30 to-transparent">
+          <section id="gallery" className="py-16 px-6 bg-gradient-to-b from-rose-50/30 to-transparent">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -623,7 +639,7 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       {invitation.loveStories.length > 0 && (
         <>
           <Divider />
-          <section className="py-16 px-6">
+          <section id="story" className="py-16 px-6">
             <motion.div
               variants={stagger}
               initial="hidden"
@@ -664,13 +680,17 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
       {invitation.giftAccounts.length > 0 && (
         <>
           <Divider />
-          <GiftAccounts accounts={invitation.giftAccounts} />
+          <div id="gift">
+            <GiftAccounts accounts={invitation.giftAccounts} />
+          </div>
         </>
       )}
 
       {/* ═══════════ 9. RSVP / UCAPAN ═══════════ */}
       <Divider />
-      <Comments invitationId={invitation.id} comments={invitation.comments} />
+      <div id="comments">
+        <Comments invitationId={invitation.id} comments={invitation.comments} />
+      </div>
 
       {/* ═══════════ 10. SHARE ═══════════ */}
       <Divider />

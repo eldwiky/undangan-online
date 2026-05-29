@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SerializedInvitation, SerializedComment } from "@/app/(public)/[slug]/InvitationClient";
 import { calculateCountdown } from "@/lib/utils";
 import MusicPlayer from "@/components/invitation/MusicPlayer";
+import Confetti from "@/components/invitation/Confetti";
+import FallingPetals from "@/components/invitation/FallingPetals";
+import ScrollDots from "@/components/invitation/ScrollDots";
+import TypewriterText from "@/components/invitation/TypewriterText";
+import { playConfettiSound } from "@/lib/sounds";
 
 // ═══════════ COLOR CONSTANTS ═══════════
 const COLORS = {
@@ -209,7 +214,9 @@ function TinderOpeningScreen({
           {guestName && (
             <div className="mt-4 py-2 px-4 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-400">Kepada,</p>
-              <p className="text-sm font-semibold text-gray-700">{guestName}</p>
+              <p className="text-sm font-semibold text-gray-700">
+                <TypewriterText text={guestName} speed={80} delay={500} />
+              </p>
             </div>
           )}
 
@@ -683,6 +690,18 @@ function TinderGift({ invitation }: { invitation: SerializedInvitation }) {
   );
 }
 
+// ═══════════ SCROLL SECTIONS ═══════════
+const TINDER_SCROLL_SECTIONS = [
+  { id: "quote", label: "Ayat" },
+  { id: "couple", label: "Mempelai" },
+  { id: "countdown", label: "Countdown" },
+  { id: "events", label: "Acara" },
+  { id: "gallery", label: "Galeri" },
+  { id: "story", label: "Love Story" },
+  { id: "comments", label: "Ucapan" },
+  { id: "gift", label: "Hadiah" },
+];
+
 // ═══════════ MAIN TEMPLATE COMPONENT ═══════════
 export default function TinderTemplate({ invitation, guestName }: TinderTemplateProps) {
   const [phase, setPhase] = useState<"opening" | "match" | "content">("opening");
@@ -693,10 +712,12 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
 
   const handleMatchComplete = useCallback(() => {
     setPhase("content");
+    playConfettiSound();
   }, []);
 
   return (
     <div>
+      <Confetti show={phase === "content"} />
       <AnimatePresence mode="wait">
         {phase === "opening" && (
           <motion.div
@@ -727,10 +748,13 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             className="min-h-screen"
             style={{ backgroundColor: COLORS.lightBg }}
           >
+            <FallingPetals variant="hearts" />
+            <ScrollDots sections={TINDER_SCROLL_SECTIONS} accentColor="#FD267A" />
 
             {/* ═══════════ QUOTE / AYAT ═══════════ */}
             {(invitation.quoteArabic || invitation.quoteText) && (
               <motion.section
+                id="quote"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -757,6 +781,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
 
             {/* ═══════════ COUPLE PROFILES ═══════════ */}
             <motion.section
+              id="couple"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -827,6 +852,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
 
             {/* ═══════════ COUNTDOWN ═══════════ */}
             <motion.section
+              id="countdown"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -842,6 +868,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             {/* ═══════════ EVENTS ═══════════ */}
             {(invitation.akadDate || invitation.resepsiDate || invitation.eventDate) && (
               <motion.section
+                id="events"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -941,6 +968,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             {/* ═══════════ GALLERY ═══════════ */}
             {invitation.gallery.length > 0 && (
               <motion.section
+                id="gallery"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -957,6 +985,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             {/* ═══════════ LOVE STORY ═══════════ */}
             {invitation.loveStories.length > 0 && (
               <motion.section
+                id="story"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -972,6 +1001,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
 
             {/* ═══════════ COMMENTS ═══════════ */}
             <motion.section
+              id="comments"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -987,6 +1017,7 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             {/* ═══════════ GIFT ═══════════ */}
             {invitation.giftAccounts.length > 0 && (
               <motion.section
+                id="gift"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

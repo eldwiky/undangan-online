@@ -3,6 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SerializedInvitation, SerializedGallery } from "@/app/(public)/[slug]/InvitationClient";
+import Confetti from "@/components/invitation/Confetti";
+import FallingPetals from "@/components/invitation/FallingPetals";
+import ScrollDots from "@/components/invitation/ScrollDots";
+import TypewriterText from "@/components/invitation/TypewriterText";
+import { playConfettiSound } from "@/lib/sounds";
 
 interface SpotifyTemplateProps {
   invitation: SerializedInvitation;
@@ -335,7 +340,9 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
               className="mb-8"
             >
               <p className="text-xs tracking-widest text-gray-500 mb-1">Dear,</p>
-              <p className="text-lg font-medium text-white">{guestName}</p>
+              <p className="text-lg font-medium text-white">
+                <TypewriterText text={guestName} speed={80} delay={2200} />
+              </p>
             </motion.div>
           )}
 
@@ -347,7 +354,7 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
             transition={{ delay: 2.3, duration: 0.5 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpened(true)}
+            onClick={() => { setIsOpened(true); playConfettiSound(); }}
             className="px-8 py-3 bg-[#1DB954] text-black font-bold rounded-full hover:bg-[#1ed760] transition-colors shadow-lg"
           >
             Buka Undangan
@@ -370,6 +377,18 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
 
   return (
     <div className="flex h-screen bg-[#121212] text-white overflow-hidden">
+      <Confetti show={isOpened} />
+      <FallingPetals variant="hearts" />
+      <ScrollDots sections={[
+        { id: "spotify-home", label: "Home" },
+        { id: "spotify-ayat", label: "Ayat" },
+        { id: "spotify-mempelai", label: "Mempelai" },
+        { id: "spotify-acara", label: "Acara" },
+        { id: "spotify-story", label: "Love Story" },
+        { id: "spotify-galeri", label: "Galeri" },
+        { id: "spotify-hadiah", label: "Hadiah" },
+        { id: "spotify-rsvp", label: "RSVP" },
+      ]} accentColor="#1DB954" />
       {/* ═══ SIDEBAR (Desktop) ═══ */}
       <aside className="hidden lg:flex flex-col w-[220px] bg-black p-4 overflow-y-auto shrink-0">
         {/* Logo / Initials */}
