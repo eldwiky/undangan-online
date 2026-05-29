@@ -1735,7 +1735,7 @@ function LoveStorySection({
           <h4 className="text-sm font-medium text-gray-700">Tambah Love Story Baru</h4>
           <div>
             <label htmlFor="storyImageUrl" className="block text-sm text-gray-600 mb-1">
-              Foto (maks. 500KB)
+              Foto (maks. 2MB)
             </label>
             <div className="flex gap-3 items-start">
               <div className="flex-1">
@@ -1743,18 +1743,19 @@ function LoveStorySection({
                   id="storyImageUrl"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (file.size > 500 * 1024) {
-                      showNotification("error", "Ukuran foto maksimal 500KB");
+                    if (file.size > 2 * 1024 * 1024) {
+                      showNotification("error", "Ukuran foto maksimal 2MB");
                       return;
                     }
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setFormData({ ...formData, imageUrl: reader.result as string });
-                    };
-                    reader.readAsDataURL(file);
+                    try {
+                      const result = await uploadToCloudinary(file, `web-undangan/love-stories/${invitationId}`, "image");
+                      setFormData({ ...formData, imageUrl: result.secure_url });
+                    } catch (err) {
+                      showNotification("error", err instanceof Error ? err.message : "Gagal upload foto");
+                    }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                 />

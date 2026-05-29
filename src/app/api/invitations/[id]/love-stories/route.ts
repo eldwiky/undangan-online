@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { uploadImage } from "@/lib/cloudinary";
 
 // GET /api/invitations/[id]/love-stories - List all love stories
 export async function GET(
@@ -141,13 +142,31 @@ export async function POST(
       );
     }
 
+    // If imageUrl is a base64 data URL, upload to Cloudinary
+    let finalImageUrl: string | null = null;
+    if (imageUrl && typeof imageUrl === "string") {
+      const trimmedUrl = imageUrl.trim();
+      if (trimmedUrl.startsWith("data:")) {
+        // Upload base64 data URL to Cloudinary
+        const base64Data = trimmedUrl.split(",")[1];
+        if (base64Data) {
+          const buffer = Buffer.from(base64Data, "base64");
+          const uploadResult = await uploadImage(buffer, `web-undangan/love-stories/${id}`);
+          finalImageUrl = uploadResult.secure_url;
+        }
+      } else {
+        // Already a URL (e.g., Cloudinary URL), use as-is
+        finalImageUrl = trimmedUrl;
+      }
+    }
+
     const loveStory = await prisma.loveStory.create({
       data: {
         invitationId: id,
         title: title.trim(),
         date: date ? String(date).trim() : null,
         description: description.trim(),
-        imageUrl: imageUrl && typeof imageUrl === "string" ? imageUrl.trim() : null,
+        imageUrl: finalImageUrl,
         order: typeof order === "number" ? order : 0,
       },
     });

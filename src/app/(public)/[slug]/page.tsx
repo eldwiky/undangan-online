@@ -46,20 +46,32 @@ export async function generateMetadata({
   const title = `${invitation.groomName} & ${invitation.brideName} - Undangan Pernikahan`;
   const description = invitation.description || `Undangan pernikahan ${invitation.groomName} & ${invitation.brideName}`;
 
+  // Determine OG image URL with fallback
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://dwikyhedi.web.id";
+  let ogImageUrl: string | null = invitation.ogImage || invitation.groomPhoto || null;
+
+  // Ensure the URL is absolute
+  if (ogImageUrl && !ogImageUrl.startsWith("http")) {
+    ogImageUrl = `${baseUrl}${ogImageUrl.startsWith("/") ? "" : "/"}${ogImageUrl}`;
+  }
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      images: invitation.ogImage ? [{ url: invitation.ogImage, width: 1200, height: 630 }] : [],
+      url: `${baseUrl}/${slug}`,
+      siteName: "Web Undangan Online",
+      images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630, alt: title }] : [],
       type: "website",
+      locale: "id_ID",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: invitation.ogImage ? [invitation.ogImage] : [],
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   };
 }
