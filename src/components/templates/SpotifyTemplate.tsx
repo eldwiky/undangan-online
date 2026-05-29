@@ -532,6 +532,22 @@ export default function SpotifyTemplate({ invitation, guestName }: SpotifyTempla
           </motion.div>
         </section>
 
+        {/* ── HERO / KAMI YANG BERBAHAGIA ── */}
+        {(invitation.heroPhoto || invitation.groomPhoto) && (
+          <section className="py-16 px-6 md:px-12">
+            <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-md mx-auto text-center">
+              <div className="w-56 h-72 md:w-64 md:h-80 mx-auto rounded-t-full overflow-hidden border-2 border-[#1DB954]/30 shadow-lg mb-6">
+                <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+              </div>
+              <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">Kami Yang Berbahagia</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">{invitation.groomName} & {invitation.brideName}</h2>
+              <p className="text-sm text-gray-400 mt-2">
+                {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              </p>
+            </motion.div>
+          </section>
+        )}
+
         {/* ── QUOTE / BISMILLAH ── */}
         {(invitation.quoteText || invitation.quoteArabic) && (
           <section id="spotify-ayat" className="py-16 px-6 md:px-12">

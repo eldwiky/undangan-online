@@ -24,6 +24,7 @@ interface InfoFormData {
   brideChildOrder: string;
   groomPhoto: string;
   bridePhoto: string;
+  heroPhoto: string;
   eventDate: string;
   eventTime: string;
   location: string;
@@ -145,6 +146,7 @@ export default function EditInvitationPage() {
     brideChildOrder: "",
     groomPhoto: "",
     bridePhoto: "",
+    heroPhoto: "",
     eventDate: "",
     eventTime: "",
     location: "",
@@ -214,6 +216,7 @@ export default function EditInvitationPage() {
           brideChildOrder: (data as unknown as { brideChildOrder?: string }).brideChildOrder || "",
           groomPhoto: (data as unknown as { groomPhoto?: string }).groomPhoto || "",
           bridePhoto: (data as unknown as { bridePhoto?: string }).bridePhoto || "",
+          heroPhoto: (data as unknown as { heroPhoto?: string }).heroPhoto || "",
           eventDate: eventDateStr,
           eventTime: data.eventTime || "",
           location: data.location || "",
@@ -547,6 +550,33 @@ function InfoAcaraSection({
               </label>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Foto Couple (Hero Section) */}
+      <div className="border-t border-gray-200 pt-6 mt-6">
+        <h4 className="text-md font-semibold text-gray-800 mb-2">Foto Couple (Hero Section)</h4>
+        <p className="text-xs text-gray-500 mb-4">Foto pasangan yang ditampilkan di section &quot;Kami Yang Berbahagia&quot;. Ukuran ideal: portrait 3:4</p>
+        <div className="text-center">
+          {form.heroPhoto ? (
+            <div className="relative inline-block">
+              <img src={form.heroPhoto} alt="Hero Couple" className="w-40 h-52 rounded-t-full object-cover border-2 border-rose-200 mx-auto" />
+              <button type="button" onClick={() => setForm({ ...form, heroPhoto: "" })} className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 cursor-pointer">✕</button>
+            </div>
+          ) : (
+            <label className="inline-flex flex-col items-center cursor-pointer">
+              <div className="w-40 h-52 rounded-t-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-rose-400 transition-colors">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
+              </div>
+              <span className="text-xs text-gray-500 mt-2">Upload foto couple</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+                const file = e.target.files?.[0]; if (!file) return;
+                const fd = new FormData(); fd.append("file", file); fd.append("type", "heroPhoto");
+                const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                if (res.ok) { const json = await res.json(); setForm({ ...form, heroPhoto: json.url }); }
+              }} />
+            </label>
+          )}
         </div>
       </div>
 

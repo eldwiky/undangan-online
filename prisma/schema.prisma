@@ -23,6 +23,9 @@ model Invitation {
   slug          String         @unique
   title         String
 
+  // Hero Section Photo
+  heroPhoto       String?
+
   // Mempelai Pria
   groomName       String
   groomFullName   String?

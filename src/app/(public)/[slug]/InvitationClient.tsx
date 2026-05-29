@@ -59,6 +59,7 @@ export interface SerializedInvitation {
   userId: string;
   slug: string;
   title: string;
+  heroPhoto: string | null;
   groomName: string;
   groomFullName: string | null;
   groomPhoto: string | null;
@@ -379,6 +380,23 @@ export default function InvitationClient({ invitation }: InvitationClientProps) 
         { id: "comments", label: "Ucapan" },
         { id: "gift", label: "Hadiah" },
       ]} accentColor="#d97706" />
+
+      {/* ═══════════ HERO / KAMI YANG BERBAHAGIA ═══════════ */}
+      {(invitation.heroPhoto || invitation.groomPhoto) && (
+        <section className="py-20 px-6">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-md mx-auto text-center">
+            <div className="w-64 h-80 md:w-72 md:h-96 mx-auto rounded-t-full overflow-hidden shadow-xl border-4 border-amber-100 mb-8">
+              <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+            </div>
+            <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">Kami Yang Berbahagia</p>
+            <h2 className="text-3xl font-serif text-gray-800">{invitation.groomName} & {invitation.brideName}</h2>
+            <p className="text-sm text-gray-500 mt-3">
+              {new Date(invitation.eventDate).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </motion.div>
+        </section>
+      )}
+      <Divider />
 
       {/* ═══════════ 1. AYAT / QUOTE ═══════════ */}
       {(invitation.quoteText || invitation.quoteArabic) && (

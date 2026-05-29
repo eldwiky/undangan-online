@@ -762,6 +762,24 @@ export default function TinderTemplate({ invitation, guestName }: TinderTemplate
             <FallingPetals variant="hearts" />
             <ScrollDots sections={TINDER_SCROLL_SECTIONS} accentColor="#FD267A" />
 
+            {/* ═══════════ HERO / KAMI YANG BERBAHAGIA ═══════════ */}
+            {(invitation.heroPhoto || invitation.groomPhoto) && (
+              <motion.section
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mx-4 my-4 bg-white rounded-xl shadow-md p-6 text-center"
+              >
+                <div className="w-56 h-72 md:w-64 md:h-80 mx-auto rounded-t-full overflow-hidden shadow-lg mb-6">
+                  <img src={invitation.heroPhoto || invitation.groomPhoto || ""} alt="Couple" className="w-full h-full object-cover" />
+                </div>
+                <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">Kami Yang Berbahagia</p>
+                <h2 className="text-2xl font-bold" style={{ color: COLORS.dark }}>{invitation.groomName} & {invitation.brideName}</h2>
+                <p className="text-sm text-gray-500 mt-2">{formatIndonesianDate(invitation.eventDate)}</p>
+              </motion.section>
+            )}
+
             {/* ═══════════ QUOTE / AYAT ═══════════ */}
             {(invitation.quoteArabic || invitation.quoteText) && (
               <motion.section

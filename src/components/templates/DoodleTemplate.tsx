@@ -2341,6 +2341,37 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
           >
             <FallingPetals variant="mixed" />
             <ScrollDots sections={SCROLL_SECTIONS} accentColor="#047857" />
+            {/* ═══════════ HERO / KAMI YANG BERBAHAGIA ═══════════ */}
+            {(invitation.heroPhoto || invitation.groomPhoto) && (
+              <section className="py-16 md:py-20 px-4 md:px-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="max-w-md mx-auto text-center"
+                >
+                  {/* Photo with rounded arch shape */}
+                  <div className="w-64 h-80 md:w-72 md:h-96 mx-auto rounded-t-full overflow-hidden shadow-lg mb-8">
+                    <img
+                      src={invitation.heroPhoto || invitation.groomPhoto || ""}
+                      alt="Couple"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <p className="text-sm md:text-base tracking-widest uppercase mb-3" style={{ color: COLORS.textLight, fontFamily: "var(--font-patrick-hand)" }}>
+                    Kami Yang Berbahagia
+                  </p>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
+                    {invitation.groomName} & {invitation.brideName}
+                  </h2>
+                  <p className="text-sm md:text-base" style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}>
+                    {formatIndonesianDate(invitation.eventDate)}
+                  </p>
+                </motion.div>
+              </section>
+            )}
+            <DoodleDivider />
             {/* ═══════════ QUOTE / AYAT SECTION ═══════════ */}
             {(invitation.quoteArabic || invitation.quoteText || invitation.quoteSource) && (
               <section id="quote" className="py-16 md:py-20 px-4 md:px-6">
