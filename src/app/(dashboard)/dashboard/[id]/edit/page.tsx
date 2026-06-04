@@ -1,9 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { Invitation } from "@/types";
 import { uploadToCloudinary } from "@/lib/client-upload";
+import ImageCropperModal from "@/components/ui/ImageCropperModal";
+
+// Helper: convert base64 data URL to File object
+function dataUrlToFile(dataUrl: string, filename: string): File {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+}
 
 type TabKey = "info" | "ayat" | "template" | "galeri" | "musik" | "rekening" | "lovestory" | "kirim";
 
@@ -136,6 +150,40 @@ export default function EditInvitationPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("info");
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Image cropper state
+  const [cropperState, setCropperState] = useState<{
+    src: string;
+    aspectRatio: number;
+    cropShape: "rect" | "round";
+    title: string;
+    onCrop: (dataUrl: string) => void;
+  } | null>(null);
+
+  const openCropper = useCallback(
+    (
+      file: File,
+      options: {
+        aspectRatio?: number;
+        cropShape?: "rect" | "round";
+        title?: string;
+        onCrop: (dataUrl: string) => void;
+      }
+    ) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCropperState({
+          src: reader.result as string,
+          aspectRatio: options.aspectRatio ?? 1,
+          cropShape: options.cropShape ?? "rect",
+          title: options.title ?? "Crop Foto",
+          onCrop: options.onCrop,
+        });
+      };
+      reader.readAsDataURL(file);
+    },
+    []
+  );
 
   const [infoForm, setInfoForm] = useState<InfoFormData>({
     groomName: "",
@@ -346,6 +394,21 @@ export default function EditInvitationPage() {
 
   return (
     <div>
+      {/* Image Cropper Modal */}
+      {cropperState && (
+        <ImageCropperModal
+          imageSrc={cropperState.src}
+          aspectRatio={cropperState.aspectRatio}
+          cropShape={cropperState.cropShape}
+          title={cropperState.title}
+          onCrop={(dataUrl) => {
+            cropperState.onCrop(dataUrl);
+            setCropperState(null);
+          }}
+          onClose={() => setCropperState(null)}
+        />
+      )}
+
       {/* Notification Toast */}
       {notification && (
         <div
@@ -410,6 +473,7 @@ export default function EditInvitationPage() {
             setForm={setInfoForm}
             onSave={handleSaveInfo}
             saving={saving}
+            openCropper={openCropper}
           />
         )}
         {activeTab === "ayat" && (
@@ -425,10 +489,10 @@ export default function EditInvitationPage() {
             }}
           />
         )}
-        {activeTab === "galeri" && <GaleriSection invitationId={id} showNotification={showNotification} />}
+        {activeTab === "galeri" && <GaleriSection invitationId={id} showNotification={showNotification} openCropper={openCropper} />}
         {activeTab === "musik" && <MusikSection invitationId={id} currentMusicUrl={invitation.musicUrl || null} showNotification={showNotification} />}
         {activeTab === "rekening" && <RekeningSection invitationId={id} showNotification={showNotification} />}
-        {activeTab === "lovestory" && <LoveStorySection invitationId={id} showNotification={showNotification} />}
+        {activeTab === "lovestory" && <LoveStorySection invitationId={id} showNotification={showNotification} openCropper={openCropper} />}
         {activeTab === "kirim" && <KirimSection invitationId={id} slug={invitation.slug} messageTemplate={(invitation as unknown as { messageTemplate?: string })?.messageTemplate || null} showNotification={showNotification} />}
       </div>
     </div>
@@ -445,12 +509,22 @@ function InfoAcaraSection({
   setForm,
   onSave,
   saving,
+  openCropper,
 }: {
   invitationId: string;
   form: InfoFormData;
   setForm: React.Dispatch<React.SetStateAction<InfoFormData>>;
   onSave: (e: React.FormEvent) => void;
   saving: boolean;
+  openCropper: (
+    file: File,
+    options: {
+      aspectRatio?: number;
+      cropShape?: "rect" | "round";
+      title?: string;
+      onCrop: (dataUrl: string) => void;
+    }
+  ) => void;
 }) {
   return (
     <form onSubmit={onSave} className="space-y-6">
@@ -484,11 +558,20 @@ function InfoAcaraSection({
           <label className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white text-sm rounded-lg hover:bg-rose-700 transition-colors cursor-pointer">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             Upload Gambar
-            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => {
               const file = e.target.files?.[0]; if (!file) return;
-              const fd = new FormData(); fd.append("file", file); fd.append("type", "ogImage");
-              const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
-              if (res.ok) { const json = await res.json(); setForm({ ...form, ogImage: json.url }); }
+              e.target.value = "";
+              openCropper(file, {
+                aspectRatio: 1200 / 630,
+                cropShape: "rect",
+                title: "Foto Preview WhatsApp",
+                onCrop: async (dataUrl) => {
+                  const croppedFile = dataUrlToFile(dataUrl, "og-image.jpg");
+                  const fd = new FormData(); fd.append("file", croppedFile); fd.append("type", "ogImage");
+                  const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                  if (res.ok) { const json = await res.json(); setForm({ ...form, ogImage: json.url }); }
+                },
+              });
             }} />
           </label>
         )}
@@ -543,11 +626,20 @@ function InfoAcaraSection({
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
                 </div>
                 <span className="text-xs text-gray-500 mt-2">Upload foto</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => {
                   const file = e.target.files?.[0]; if (!file) return;
-                  const fd = new FormData(); fd.append("file", file); fd.append("type", "groomPhoto");
-                  const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
-                  if (res.ok) { const json = await res.json(); setForm({ ...form, groomPhoto: json.url }); }
+                  e.target.value = "";
+                  openCropper(file, {
+                    aspectRatio: 1,
+                    cropShape: "round",
+                    title: "Foto Profil Pengantin Pria",
+                    onCrop: async (dataUrl) => {
+                      const croppedFile = dataUrlToFile(dataUrl, "groom-photo.jpg");
+                      const fd = new FormData(); fd.append("file", croppedFile); fd.append("type", "groomPhoto");
+                      const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                      if (res.ok) { const json = await res.json(); setForm({ ...form, groomPhoto: json.url }); }
+                    },
+                  });
                 }} />
               </label>
             )}
@@ -566,11 +658,20 @@ function InfoAcaraSection({
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
                 </div>
                 <span className="text-xs text-gray-500 mt-2">Upload foto</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => {
                   const file = e.target.files?.[0]; if (!file) return;
-                  const fd = new FormData(); fd.append("file", file); fd.append("type", "bridePhoto");
-                  const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
-                  if (res.ok) { const json = await res.json(); setForm({ ...form, bridePhoto: json.url }); }
+                  e.target.value = "";
+                  openCropper(file, {
+                    aspectRatio: 1,
+                    cropShape: "round",
+                    title: "Foto Profil Pengantin Wanita",
+                    onCrop: async (dataUrl) => {
+                      const croppedFile = dataUrlToFile(dataUrl, "bride-photo.jpg");
+                      const fd = new FormData(); fd.append("file", croppedFile); fd.append("type", "bridePhoto");
+                      const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                      if (res.ok) { const json = await res.json(); setForm({ ...form, bridePhoto: json.url }); }
+                    },
+                  });
                 }} />
               </label>
             )}
@@ -594,11 +695,20 @@ function InfoAcaraSection({
                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
               </div>
               <span className="text-xs text-gray-500 mt-2">Upload foto couple</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => {
                 const file = e.target.files?.[0]; if (!file) return;
-                const fd = new FormData(); fd.append("file", file); fd.append("type", "heroPhoto");
-                const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
-                if (res.ok) { const json = await res.json(); setForm({ ...form, heroPhoto: json.url }); }
+                e.target.value = "";
+                openCropper(file, {
+                  aspectRatio: 3 / 4,
+                  cropShape: "rect",
+                  title: "Foto Hero (Kami Yang Berbahagia)",
+                  onCrop: async (dataUrl) => {
+                    const croppedFile = dataUrlToFile(dataUrl, "hero-photo.jpg");
+                    const fd = new FormData(); fd.append("file", croppedFile); fd.append("type", "heroPhoto");
+                    const res = await fetch(`/api/invitations/${invitationId}/profile-photo`, { method: "POST", body: fd });
+                    if (res.ok) { const json = await res.json(); setForm({ ...form, heroPhoto: json.url }); }
+                  },
+                });
               }} />
             </label>
           )}
@@ -867,9 +977,19 @@ interface GalleryItem {
 function GaleriSection({
   invitationId,
   showNotification,
+  openCropper,
 }: {
   invitationId: string;
   showNotification: (type: "success" | "error", message: string) => void;
+  openCropper: (
+    file: File,
+    options: {
+      aspectRatio?: number;
+      cropShape?: "rect" | "round";
+      title?: string;
+      onCrop: (dataUrl: string) => void;
+    }
+  ) => void;
 }) {
   const [photos, setPhotos] = useState<GalleryItem[]>([]);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
@@ -907,21 +1027,22 @@ function GaleriSection({
       return;
     }
 
-    setUploading(true);
-    let successCount = 0;
+    // Reset input so the same file can be selected again
+    const fileArray = Array.from(files);
+    e.target.value = "";
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
+    // Process each file sequentially through the cropper
+    const uploadCroppedFile = async (dataUrl: string, index: number) => {
+      setUploading(true);
       try {
-        // Upload directly to Cloudinary from browser (bypasses Vercel 4.5MB limit)
+        const croppedFile = dataUrlToFile(dataUrl, `gallery-${Date.now()}-${index}.jpg`);
+
         const result = await uploadToCloudinary(
-          file,
+          croppedFile,
           `web-undangan/gallery/${invitationId}`,
           "image"
         );
 
-        // Save the URL to database via lightweight API call
         const res = await fetch(`/api/invitations/${invitationId}/gallery`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -935,18 +1056,34 @@ function GaleriSection({
 
         const json = await res.json();
         setPhotos((prev) => [...prev, json.data]);
-        successCount++;
+        showNotification("success", "Foto berhasil diupload");
       } catch (err) {
-        showNotification("error", err instanceof Error ? err.message : `Gagal mengupload ${file.name}`);
+        showNotification("error", err instanceof Error ? err.message : `Gagal mengupload foto`);
+      } finally {
+        setUploading(false);
       }
-    }
+    };
 
-    if (successCount > 0) {
-      showNotification("success", `${successCount} foto berhasil diupload`);
-    }
+    // Open cropper for each file one at a time using a queue approach
+    let currentIndex = 0;
 
-    setUploading(false);
-    e.target.value = "";
+    const openNext = () => {
+      if (currentIndex >= fileArray.length) return;
+      const file = fileArray[currentIndex];
+      const idx = currentIndex;
+      currentIndex++;
+      openCropper(file, {
+        aspectRatio: 1,
+        cropShape: "rect",
+        title: `Foto Galeri (${idx + 1}/${fileArray.length})`,
+        onCrop: async (dataUrl) => {
+          await uploadCroppedFile(dataUrl, idx);
+          openNext();
+        },
+      });
+    };
+
+    openNext();
   };
 
   const handleDelete = async (photoId: string) => {
@@ -1677,9 +1814,19 @@ interface LoveStoryItem {
 function LoveStorySection({
   invitationId,
   showNotification,
+  openCropper,
 }: {
   invitationId: string;
   showNotification: (type: "success" | "error", message: string) => void;
+  openCropper: (
+    file: File,
+    options: {
+      aspectRatio?: number;
+      cropShape?: "rect" | "round";
+      title?: string;
+      onCrop: (dataUrl: string) => void;
+    }
+  ) => void;
 }) {
   const [stories, setStories] = useState<LoveStoryItem[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
@@ -1811,19 +1958,29 @@ function LoveStorySection({
                   id="storyImageUrl"
                   type="file"
                   accept="image/*"
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     if (file.size > 2 * 1024 * 1024) {
                       showNotification("error", "Ukuran foto maksimal 2MB");
+                      e.target.value = "";
                       return;
                     }
-                    try {
-                      const result = await uploadToCloudinary(file, `web-undangan/love-stories/${invitationId}`, "image");
-                      setFormData({ ...formData, imageUrl: result.secure_url });
-                    } catch (err) {
-                      showNotification("error", err instanceof Error ? err.message : "Gagal upload foto");
-                    }
+                    e.target.value = "";
+                    openCropper(file, {
+                      aspectRatio: 1,
+                      cropShape: "rect",
+                      title: "Foto Cerita Cinta",
+                      onCrop: async (dataUrl) => {
+                        try {
+                          const croppedFile = dataUrlToFile(dataUrl, `love-story-${Date.now()}.jpg`);
+                          const result = await uploadToCloudinary(croppedFile, `web-undangan/love-stories/${invitationId}`, "image");
+                          setFormData({ ...formData, imageUrl: result.secure_url });
+                        } catch (err) {
+                          showNotification("error", err instanceof Error ? err.message : "Gagal upload foto");
+                        }
+                      },
+                    });
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                 />
