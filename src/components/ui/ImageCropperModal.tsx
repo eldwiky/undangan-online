@@ -83,11 +83,11 @@ export default function ImageCropperModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+          className="bg-white rounded-2xl w-full max-w-lg shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 rounded-t-2xl bg-white">
             <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
             <button
               onClick={onClose}
@@ -98,7 +98,7 @@ export default function ImageCropperModal({
           </div>
 
           {/* Cropper area */}
-          <div className="relative w-full bg-gray-900" style={{ height: 320 }}>
+          <div className="relative w-full bg-gray-900 overflow-hidden" style={{ height: 380 }}>
             <Cropper
               image={imageSrc}
               crop={crop}
@@ -106,6 +106,7 @@ export default function ImageCropperModal({
               aspect={aspectRatio}
               cropShape={cropShape}
               showGrid={false}
+              restrictPosition={false}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
@@ -134,7 +135,7 @@ export default function ImageCropperModal({
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-2 px-4 py-3">
+          <div className="flex gap-2 px-4 py-3 rounded-b-2xl bg-white">
             <button
               onClick={onClose}
               className="flex-1 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"

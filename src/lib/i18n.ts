@@ -67,7 +67,7 @@ const id: Translations = {
   openInvitation: "Open Invitation",
   kepada: "Kepada,",
   ayatSuci: "Ayat Suci",
-  mempelai: "Mempelai",
+  mempelai: "Pasangan Berbahagia",
   menghitungHari: "Menghitung Hari",
   acaraPernikahan: "Acara Pernikahan",
   akadNikah: "Akad Nikah",
