@@ -2461,7 +2461,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                     className="text-3xl md:text-4xl font-bold"
                     style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}
                   >
-                    Mempelai
+                    Pasangan Berbahagia
                   </h2>
                   <DoodleHeart className="opacity-60" />
                 </div>
