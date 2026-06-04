@@ -64,7 +64,7 @@ export interface Translations {
 const id: Translations = {
   kamiYangBerbahagia: "Kami Yang Berbahagia",
   saveTheDate: "Save the Date",
-  openInvitation: "Open Invitation",
+  openInvitation: "Buka Undangan",
   kepada: "Kepada,",
   ayatSuci: "Ayat Suci",
   mempelai: "Pasangan Berbahagia",
