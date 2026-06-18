@@ -995,6 +995,7 @@ function GaleriSection({
   const [loadingPhotos, setLoadingPhotos] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
 
   const MAX_PHOTOS = 20;
 
@@ -1109,6 +1110,33 @@ function GaleriSection({
     }
   };
 
+  const movePhoto = async (index: number, direction: "up" | "down") => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= photos.length) return;
+
+    const newPhotos = [...photos];
+    const [moved] = newPhotos.splice(index, 1);
+    newPhotos.splice(newIndex, 0, moved);
+    setPhotos(newPhotos);
+
+    // Save to backend
+    setReordering(true);
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}/gallery`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedIds: newPhotos.map((p) => p.id) }),
+      });
+      if (!res.ok) throw new Error("Gagal menyimpan urutan");
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Gagal menyimpan urutan");
+      // Revert on error
+      fetchPhotos();
+    } finally {
+      setReordering(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -1169,17 +1197,61 @@ function GaleriSection({
         </div>
       )}
 
-      {/* Photo Grid */}
+      {/* Hint */}
+      {!loadingPhotos && photos.length > 1 && (
+        <p className="text-xs text-gray-400 flex items-center gap-1">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Gunakan tombol panah untuk mengatur urutan foto. Nomor menunjukkan urutan tampil di undangan.
+        </p>
+      )}
+
+      {/* Photo Grid with Order Numbers */}
       {!loadingPhotos && photos.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {photos.map((photo) => (
+          {photos.map((photo, index) => (
             <div key={photo.id} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
               <img
                 src={photo.imageUrl}
-                alt="Foto galeri"
+                alt={`Foto galeri ${index + 1}`}
                 className="w-full h-full object-cover"
               />
+              {/* Overlay on hover */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+
+              {/* Order number badge - always visible */}
+              <div className="absolute top-2 left-2 w-6 h-6 bg-rose-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md">
+                {index + 1}
+              </div>
+
+              {/* Reorder buttons - visible on hover */}
+              <div className="absolute bottom-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => movePhoto(index, "up")}
+                  disabled={index === 0 || reordering}
+                  className="w-7 h-7 bg-white/90 hover:bg-white text-gray-700 rounded-md flex items-center justify-center shadow-sm disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  aria-label="Pindah ke kiri"
+                  title="Pindah ke kiri"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => movePhoto(index, "down")}
+                  disabled={index === photos.length - 1 || reordering}
+                  className="w-7 h-7 bg-white/90 hover:bg-white text-gray-700 rounded-md flex items-center justify-center shadow-sm disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  aria-label="Pindah ke kanan"
+                  title="Pindah ke kanan"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Delete button */}
               <button
                 onClick={() => handleDelete(photo.id)}
                 disabled={deletingId === photo.id}

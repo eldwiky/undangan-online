@@ -252,6 +252,71 @@ export async function POST(
   }
 }
 
+// PATCH /api/invitations/[id]/gallery - Reorder gallery photos
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Silakan login terlebih dahulu", statusCode: 401 },
+        { status: 401 }
+      );
+    }
+
+    const invitation = await prisma.invitation.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!invitation) {
+      return NextResponse.json(
+        { error: "Not Found", message: "Undangan tidak ditemukan", statusCode: 404 },
+        { status: 404 }
+      );
+    }
+
+    if (invitation.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Akses ditolak", statusCode: 403 },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { orderedIds } = body as { orderedIds: string[] };
+
+    if (!orderedIds || !Array.isArray(orderedIds) || orderedIds.length === 0) {
+      return NextResponse.json(
+        { error: "Validation Error", message: "orderedIds wajib berupa array", statusCode: 400 },
+        { status: 400 }
+      );
+    }
+
+    // Update order for each photo
+    const updates = orderedIds.map((photoId, index) =>
+      prisma.gallery.updateMany({
+        where: { id: photoId, invitationId: id },
+        data: { order: index },
+      })
+    );
+
+    await Promise.all(updates);
+
+    return NextResponse.json({ message: "Urutan berhasil diperbarui" });
+  } catch (error) {
+    console.error("PATCH /api/invitations/[id]/gallery error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", message: "Terjadi kesalahan server", statusCode: 500 },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/invitations/[id]/gallery - Delete a specific photo
 export async function DELETE(
   request: Request,

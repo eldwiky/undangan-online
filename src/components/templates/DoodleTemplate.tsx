@@ -2498,7 +2498,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                       <div className="mt-2">
                         {invitation.brideChildOrder && (
                           <p
-                            className="text-sm"
+                            className="text-base md:text-lg"
                             style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
                           >
                             {invitation.brideChildOrder}
@@ -2506,7 +2506,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                         )}
                         {(invitation.brideFather || invitation.brideMother) && (
                           <p
-                            className="text-sm mt-1"
+                            className="text-base md:text-lg mt-1"
                             style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}
                           >
                             {invitation.brideFather && `Bapak ${invitation.brideFather}`}
@@ -2559,7 +2559,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                       <div className="mt-2">
                         {invitation.groomChildOrder && (
                           <p
-                            className="text-sm"
+                            className="text-base md:text-lg"
                             style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
                           >
                             {invitation.groomChildOrder}
@@ -2567,7 +2567,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                         )}
                         {(invitation.groomFather || invitation.groomMother) && (
                           <p
-                            className="text-sm mt-1"
+                            className="text-base md:text-lg mt-1"
                             style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}
                           >
                             {invitation.groomFather && `Bapak ${invitation.groomFather}`}
