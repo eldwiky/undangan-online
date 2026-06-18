@@ -191,6 +191,99 @@ export async function POST(
   }
 }
 
+// PATCH /api/invitations/[id]/love-stories - Update a love story
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Silakan login terlebih dahulu", statusCode: 401 },
+        { status: 401 }
+      );
+    }
+
+    const invitation = await prisma.invitation.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!invitation) {
+      return NextResponse.json(
+        { error: "Not Found", message: "Undangan tidak ditemukan", statusCode: 404 },
+        { status: 404 }
+      );
+    }
+
+    if (invitation.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Akses ditolak", statusCode: 403 },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { storyId, title, date, description } = body;
+
+    if (!storyId) {
+      return NextResponse.json(
+        { error: "Validation Error", message: "storyId wajib disertakan", statusCode: 400 },
+        { status: 400 }
+      );
+    }
+
+    // Verify the story belongs to this invitation
+    const existing = await prisma.loveStory.findFirst({
+      where: { id: storyId, invitationId: id },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Not Found", message: "Love story tidak ditemukan", statusCode: 404 },
+        { status: 404 }
+      );
+    }
+
+    if (!title || typeof title !== "string" || !title.trim()) {
+      return NextResponse.json(
+        { error: "Validation Error", message: "Judul cerita wajib diisi", statusCode: 400 },
+        { status: 400 }
+      );
+    }
+
+    if (!description || typeof description !== "string" || !description.trim()) {
+      return NextResponse.json(
+        { error: "Validation Error", message: "Deskripsi cerita wajib diisi", statusCode: 400 },
+        { status: 400 }
+      );
+    }
+
+    const updated = await prisma.loveStory.update({
+      where: { id: storyId },
+      data: {
+        title: title.trim(),
+        date: date ? String(date).trim() : null,
+        description: description.trim(),
+      },
+    });
+
+    return NextResponse.json({
+      message: "Love story berhasil diperbarui",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("PATCH /api/invitations/[id]/love-stories error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", message: "Terjadi kesalahan server", statusCode: 500 },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/invitations/[id]/love-stories - Delete a love story
 export async function DELETE(
   request: Request,

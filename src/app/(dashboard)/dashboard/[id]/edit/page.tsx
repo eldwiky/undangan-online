@@ -1905,9 +1905,17 @@ function LoveStorySection({
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     imageUrl: "",
+    title: "",
+    date: "",
+    description: "",
+  });
+
+  const [editFormData, setEditFormData] = useState({
     title: "",
     date: "",
     description: "",
@@ -1968,6 +1976,58 @@ function LoveStorySection({
       showNotification("error", err instanceof Error ? err.message : "Gagal menambahkan love story");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleStartEdit = (story: LoveStoryItem) => {
+    setEditingId(story.id);
+    setEditFormData({
+      title: story.title,
+      date: story.date || "",
+      description: story.description,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditFormData({ title: "", date: "", description: "" });
+  };
+
+  const handleSaveEdit = async (storyId: string) => {
+    if (!editFormData.title.trim() || !editFormData.description.trim()) {
+      showNotification("error", "Judul dan deskripsi wajib diisi");
+      return;
+    }
+
+    setEditSubmitting(true);
+    try {
+      const res = await fetch(`/api/invitations/${invitationId}/love-stories`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storyId,
+          title: editFormData.title,
+          date: editFormData.date || null,
+          description: editFormData.description,
+        }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.message || "Gagal memperbarui love story");
+      }
+
+      const json = await res.json();
+      setStories((prev) =>
+        prev.map((s) => (s.id === storyId ? { ...s, ...json.data } : s))
+      );
+      setEditingId(null);
+      setEditFormData({ title: "", date: "", description: "" });
+      showNotification("success", "Love story berhasil diperbarui");
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Gagal memperbarui love story");
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -2155,45 +2215,133 @@ function LoveStorySection({
           {stories.map((story) => (
             <div
               key={story.id}
-              className="flex items-start justify-between border border-gray-200 rounded-lg p-4"
+              className="border border-gray-200 rounded-lg p-4"
             >
-              <div className="flex items-start gap-3">
-                {story.imageUrl ? (
-                  <img
-                    src={story.imageUrl}
-                    alt={story.title}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0 mt-0.5"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+              {editingId === story.id ? (
+                /* Inline Edit Form */
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Judul <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.title}
+                      onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                      placeholder="Judul cerita"
+                    />
                   </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{story.title}</p>
-                  {story.date && <p className="text-xs text-rose-600 mt-0.5">{story.date}</p>}
-                  <p className="text-sm text-gray-600 mt-1">{story.description}</p>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Tanggal / Periode
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.date}
+                      onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                      placeholder="Contoh: Januari 2022"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Cerita <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editFormData.description}
+                      onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm resize-none"
+                      placeholder="Ceritakan momen spesial ini..."
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSaveEdit(story.id)}
+                      disabled={editSubmitting}
+                      className="inline-flex items-center px-3 py-1.5 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {editSubmitting ? (
+                        <>
+                          <svg className="animate-spin -ml-0.5 mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Menyimpan...
+                        </>
+                      ) : (
+                        "Simpan"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      disabled={editSubmitting}
+                      className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <button
-                onClick={() => handleDelete(story.id)}
-                disabled={deletingId === story.id}
-                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed flex-shrink-0"
-                aria-label="Hapus love story"
-              >
-                {deletingId === story.id ? (
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                )}
-              </button>
+              ) : (
+                /* Display mode */
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    {story.imageUrl ? (
+                      <img
+                        src={story.imageUrl}
+                        alt={story.title}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0 mt-0.5"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{story.title}</p>
+                      {story.date && <p className="text-xs text-rose-600 mt-0.5">{story.date}</p>}
+                      <p className="text-sm text-gray-600 mt-1">{story.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Edit button */}
+                    <button
+                      onClick={() => handleStartEdit(story)}
+                      className="p-2 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      aria-label="Edit love story"
+                      title="Edit"
+                    >
+                      <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    {/* Delete button */}
+                    <button
+                      onClick={() => handleDelete(story.id)}
+                      disabled={deletingId === story.id}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                      aria-label="Hapus love story"
+                      title="Hapus"
+                    >
+                      {deletingId === story.id ? (
+                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

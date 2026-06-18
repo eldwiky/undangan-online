@@ -144,19 +144,6 @@ function CoupleIllustration({ eventDate }: { eventDate: string }) {
         fill="none"
       />
 
-      {/* Event date text inside heart */}
-      <text
-        x="100"
-        y="86"
-        textAnchor="middle"
-        fontSize="7"
-        fontFamily="var(--font-caveat)"
-        fill={COLORS.accent}
-        stroke="none"
-      >
-        {dateStr}
-      </text>
-
       {/* Small decorative hearts floating */}
       <path d="M45 40 C45 38, 43 37, 42 38 C41 39, 41 40, 45 43 C49 40, 49 39, 48 38 C47 37, 45 38, 45 40Z" strokeWidth={1} />
       <path d="M155 40 C155 38, 153 37, 152 38 C151 39, 151 40, 155 43 C159 40, 159 39, 158 38 C157 37, 155 38, 155 40Z" strokeWidth={1} />
