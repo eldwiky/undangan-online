@@ -57,7 +57,7 @@ export default function OpeningScreen({
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-4xl md:text-5xl font-serif text-gray-800 mb-2"
         >
-          {groomName}
+          {brideName}
         </motion.h1>
 
         <motion.p
@@ -75,7 +75,7 @@ export default function OpeningScreen({
           transition={{ duration: 0.8, delay: 1.4 }}
           className="text-4xl md:text-5xl font-serif text-gray-800 mb-8"
         >
-          {brideName}
+          {groomName}
         </motion.h1>
 
         <motion.p

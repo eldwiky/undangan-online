@@ -574,15 +574,15 @@ function generateICSContent(
 
 /** Handle Save the Date action - Google Calendar for Android, ICS for iOS/Desktop */
 function handleSaveTheDate(
-  groomName: string,
   brideName: string,
+  groomName: string,
   dateStr: string,
   startTime: string | null,
   endTime: string | null,
   venue: string | null,
   address: string | null
 ) {
-  const title = `Pernikahan ${groomName} & ${brideName}`;
+  const title = `Pernikahan ${brideName} & ${groomName}`;
   const isAndroid = /android/i.test(navigator.userAgent);
 
   if (isAndroid) {
@@ -594,7 +594,7 @@ function handleSaveTheDate(
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${groomName}-${brideName}-wedding.ics`;
+    link.download = `${brideName}-${groomName}-wedding.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -957,7 +957,7 @@ function DoodleEvents({ invitation, t }: { invitation: SerializedInvitation; t: 
             return (
               <WavyBorderButton
                 onClick={() =>
-                  handleSaveTheDate(invitation.groomName, invitation.brideName, eventDate, startTime, endTime, venue, address)
+                  handleSaveTheDate(invitation.brideName, invitation.groomName, eventDate, startTime, endTime, venue, address)
                 }
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" role="presentation">
@@ -1453,7 +1453,7 @@ function DoodleShareFooter({ invitation, t }: { invitation: SerializedInvitation
             className="text-2xl md:text-3xl font-bold mb-4"
             style={{ fontFamily: "var(--font-caveat)", color: COLORS.accent }}
           >
-            {invitation.groomName} & {invitation.brideName}
+            {invitation.brideName} & {invitation.groomName}
           </p>
 
           {/* Hashtag (conditional) */}
@@ -1954,7 +1954,7 @@ function DoodleOpeningScreen({
           })()}
         </p>
 
-        {/* Groom & Bride Names */}
+        {/* Bride & Groom Names */}
         <h1
           className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
           style={{
@@ -1962,11 +1962,11 @@ function DoodleOpeningScreen({
             color: COLORS.accent,
           }}
         >
-          {invitation.groomName}
+          {invitation.brideName}
           <span className="block text-2xl md:text-3xl font-normal my-1" style={{ color: COLORS.accentDark }}>
             &amp;
           </span>
-          {invitation.brideName}
+          {invitation.groomName}
         </h1>
 
         {/* Couple Illustration with event date */}
@@ -2360,7 +2360,7 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                     {t.kamiYangBerbahagia}
                   </p>
                   <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-caveat)", color: COLORS.accentDark }}>
-                    {invitation.heroNickname || `${invitation.groomName} & ${invitation.brideName}`}
+                    {invitation.heroNickname || `${invitation.brideName} & ${invitation.groomName}`}
                   </h2>
                 </motion.div>
               </section>
@@ -2468,70 +2468,9 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
 
                 {/* Profiles container: flex-col on mobile, flex-row on md+ */}
                 <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
-                  {/* Groom Profile */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="flex flex-col items-center text-center"
-                  >
-                    <SketchyCircleBorder size={140} className="mb-4">
-                      {invitation.groomPhoto ? (
-                        <img
-                          src={invitation.groomPhoto}
-                          alt={invitation.groomFullName || invitation.groomName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <DoodlePlaceholder />
-                      )}
-                    </SketchyCircleBorder>
-                    <h3
-                      className="text-2xl md:text-3xl font-bold mt-2"
-                      style={{ fontFamily: "var(--font-caveat)", color: COLORS.accent }}
-                    >
-                      {invitation.groomFullName || invitation.groomName}
-                    </h3>
-                    {/* Parent info: show only when at least one field is provided */}
-                    {(invitation.groomChildOrder || invitation.groomFather || invitation.groomMother) && (
-                      <div className="mt-2">
-                        {invitation.groomChildOrder && (
-                          <p
-                            className="text-sm"
-                            style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
-                          >
-                            {invitation.groomChildOrder}
-                          </p>
-                        )}
-                        {(invitation.groomFather || invitation.groomMother) && (
-                          <p
-                            className="text-sm mt-1"
-                            style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}
-                          >
-                            {invitation.groomFather && `Bapak ${invitation.groomFather}`}
-                            {invitation.groomFather && invitation.groomMother && " & "}
-                            {invitation.groomMother && `Ibu ${invitation.groomMother}`}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-
-                  {/* Ampersand/Heart doodle between profiles */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                    className="flex-shrink-0"
-                  >
-                    <AmpersandDoodle />
-                  </motion.div>
-
                   {/* Bride Profile */}
                   <motion.div
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.1 }}
@@ -2573,6 +2512,67 @@ export default function DoodleTemplate({ invitation, guestName }: DoodleTemplate
                             {invitation.brideFather && `Bapak ${invitation.brideFather}`}
                             {invitation.brideFather && invitation.brideMother && " & "}
                             {invitation.brideMother && `Ibu ${invitation.brideMother}`}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Ampersand/Heart doodle between profiles */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                    className="flex-shrink-0"
+                  >
+                    <AmpersandDoodle />
+                  </motion.div>
+
+                  {/* Groom Profile */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <SketchyCircleBorder size={140} className="mb-4">
+                      {invitation.groomPhoto ? (
+                        <img
+                          src={invitation.groomPhoto}
+                          alt={invitation.groomFullName || invitation.groomName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <DoodlePlaceholder />
+                      )}
+                    </SketchyCircleBorder>
+                    <h3
+                      className="text-2xl md:text-3xl font-bold mt-2"
+                      style={{ fontFamily: "var(--font-caveat)", color: COLORS.accent }}
+                    >
+                      {invitation.groomFullName || invitation.groomName}
+                    </h3>
+                    {/* Parent info: show only when at least one field is provided */}
+                    {(invitation.groomChildOrder || invitation.groomFather || invitation.groomMother) && (
+                      <div className="mt-2">
+                        {invitation.groomChildOrder && (
+                          <p
+                            className="text-sm"
+                            style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.text }}
+                          >
+                            {invitation.groomChildOrder}
+                          </p>
+                        )}
+                        {(invitation.groomFather || invitation.groomMother) && (
+                          <p
+                            className="text-sm mt-1"
+                            style={{ fontFamily: "var(--font-patrick-hand)", color: COLORS.textLight }}
+                          >
+                            {invitation.groomFather && `Bapak ${invitation.groomFather}`}
+                            {invitation.groomFather && invitation.groomMother && " & "}
+                            {invitation.groomMother && `Ibu ${invitation.groomMother}`}
                           </p>
                         )}
                       </div>
