@@ -271,65 +271,90 @@ function CountdownSection({ eventDate, onReachZero, language }: { eventDate: str
   );
 }
 
-// Gallery with lightbox
+// Gallery carousel with emerald green border
 function GallerySection({ photos }: { photos: SerializedGallery[] }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const sorted = [...photos].sort((a, b) => a.order - b.order);
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
 
-  if (photos.length === 0) return null;
+  if (sorted.length === 0) return null;
+
+  const goTo = (index: number, dir: 1 | -1) => {
+    setDirection(dir);
+    setCurrent(index);
+  };
+
+  const prev = () => goTo((current - 1 + sorted.length) % sorted.length, -1);
+  const next = () => goTo((current + 1) % sorted.length, 1);
+
+  const variants = {
+    enter: (dir: number) => ({ x: dir > 0 ? "60%" : "-60%", opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? "-60%" : "60%", opacity: 0 }),
+  };
 
   return (
-    <>
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="grid grid-cols-2 md:grid-cols-3 gap-3"
-      >
-        {photos.map((photo, i) => (
-          <motion.div
-            key={photo.id}
-            variants={fadeUp}
-            className="aspect-square rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-shadow"
-            onClick={() => setSelected(photo.imageUrl)}
-          >
-            <img
-              src={photo.imageUrl}
-              alt={`Foto ${i + 1}`}
-              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-              loading="lazy"
-            />
-          </motion.div>
-        ))}
-      </motion.div>
+    <div className="max-w-sm mx-auto">
+      {/* Emerald green rounded border frame */}
+      <div className="relative rounded-3xl overflow-hidden border-4 border-emerald-500 shadow-xl bg-black aspect-[3/4]">
+        <AnimatePresence custom={direction} initial={false} mode="popLayout">
+          <motion.img
+            key={sorted[current].id}
+            src={sorted[current].imageUrl}
+            alt={`Foto ${current + 1}`}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable={false}
+          />
+        </AnimatePresence>
 
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setSelected(null)}
-          >
-            <motion.img
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              src={selected}
-              alt="Preview"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            />
+        {sorted.length > 1 && (
+          <>
             <button
-              onClick={() => setSelected(null)}
-              className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/30"
+              onClick={prev}
+              aria-label="Foto sebelumnya"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
             >
-              ✕
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
             </button>
-          </motion.div>
+            <button
+              onClick={next}
+              aria-label="Foto selanjutnya"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </>
         )}
-      </AnimatePresence>
-    </>
+      </div>
+
+      {/* Dot indicators */}
+      {sorted.length > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-4">
+          {sorted.map((_, i) => (
+            <button
+              key={i}
+              aria-label={`Foto ${i + 1}`}
+              onClick={() => goTo(i, i > current ? 1 : -1)}
+              className={`rounded-full transition-all duration-300 ${
+                i === current
+                  ? "w-6 h-2.5 bg-emerald-600"
+                  : "w-2.5 h-2.5 bg-gray-300 hover:bg-emerald-300"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
