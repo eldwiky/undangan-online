@@ -1333,12 +1333,13 @@ function DoodleGift({ invitation, t }: { invitation: SerializedInvitation; t: Tr
                 {/* Copy button */}
                 <button
                   onClick={() => handleCopy(account.accountNumber, account.id)}
-                  className="relative inline-flex items-center justify-center px-5 py-2.5 text-sm md:text-base font-medium rounded-md cursor-pointer min-h-[44px] min-w-[44px] transition-transform hover:scale-105 active:scale-95"
+                  className="relative inline-flex items-center justify-center px-5 py-2.5 text-sm md:text-base font-medium rounded-md cursor-pointer min-h-[44px] min-w-[44px] transition-transform hover:scale-105 active:scale-95 overflow-visible"
                   style={{ color: COLORS.accent, fontFamily: "var(--font-patrick-hand)" }}
                 >
                   {/* Hand-drawn button border */}
                   <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    className="absolute pointer-events-none"
+                    style={{ inset: "-4px", width: "calc(100% + 8px)", height: "calc(100% + 8px)" }}
                     viewBox="0 0 200 50"
                     preserveAspectRatio="none"
                     aria-hidden="true"
