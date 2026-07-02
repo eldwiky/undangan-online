@@ -964,6 +964,7 @@ function DoodleEvents({ invitation, t }: { invitation: SerializedInvitation; t: 
 function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"]; t: Translations }) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [lightbox, setLightbox] = useState(false);
 
   // Hide section entirely when gallery is empty
   if (!gallery || gallery.length === 0) return null;
@@ -1005,7 +1006,7 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
           <DoodleHeart className="opacity-60" />
         </div>
 
-        {/* Carousel frame with sketchy doodle border */}
+        {/* Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1013,8 +1014,9 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative"
         >
-          <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-black">
-            {/* Sketchy SVG border overlay */}
+          {/* Outer wrapper: padding memberi ruang agar SVG border bisa menonjol */}
+          <div className="relative p-3">
+            {/* Sketchy SVG border — di luar foto, mengelilingi seperti frame */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none z-10"
               viewBox="0 0 120 160"
@@ -1022,54 +1024,70 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
               aria-hidden="true"
               fill="none"
               stroke={COLORS.accent}
-              strokeWidth={2}
+              strokeWidth={2.5}
             >
-              <path d="M4 4 C30 3, 60 5, 90 4 C105 3, 116 4, 116 4" strokeLinecap="round" />
-              <path d="M116 4 C117 40, 115 80, 116 120 C117 140, 116 156, 116 156" strokeLinecap="round" />
-              <path d="M116 156 C90 157, 60 155, 30 156 C15 157, 4 156, 4 156" strokeLinecap="round" />
-              <path d="M4 156 C3 120, 5 80, 4 40 C3 20, 4 4, 4 4" strokeLinecap="round" />
+              <path d="M6 6 C30 4, 60 7, 90 5 C105 4, 114 6, 114 6" strokeLinecap="round" />
+              <path d="M114 6 C116 40, 113 80, 115 120 C116 140, 114 154, 114 154" strokeLinecap="round" />
+              <path d="M114 154 C90 156, 60 153, 30 155 C15 156, 6 154, 6 154" strokeLinecap="round" />
+              <path d="M6 154 C4 120, 7 80, 5 40 C4 20, 6 6, 6 6" strokeLinecap="round" />
             </svg>
 
-            <AnimatePresence custom={direction} initial={false} mode="popLayout">
-              <motion.img
-                key={sorted[current].id}
-                src={sorted[current].imageUrl}
-                alt={`Foto ${current + 1}`}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="absolute inset-0 w-full h-full object-cover"
-                draggable={false}
-              />
-            </AnimatePresence>
+            {/* Photo container — overflow hidden hanya di sini */}
+            <div
+              className="relative aspect-[3/4] overflow-hidden rounded-xl bg-black cursor-pointer"
+              onClick={() => setLightbox(true)}
+            >
+              <AnimatePresence custom={direction} initial={false} mode="popLayout">
+                <motion.img
+                  key={sorted[current].id}
+                  src={sorted[current].imageUrl}
+                  alt={`Foto ${current + 1}`}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  draggable={false}
+                />
+              </AnimatePresence>
 
-            {/* Navigation buttons */}
-            {sorted.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  aria-label="Foto sebelumnya"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                </button>
-                <button
-                  onClick={next}
-                  aria-label="Foto selanjutnya"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
-              </>
-            )}
+              {/* Tap-to-fullscreen hint */}
+              <div className="absolute bottom-2 right-2 z-10 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+              </div>
+            </div>
           </div>
+
+          {/* Navigation buttons — di luar padding wrapper */}
+          {sorted.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                aria-label="Foto sebelumnya"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <button
+                onClick={next}
+                aria-label="Foto selanjutnya"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </>
+          )}
 
           {/* Dot indicators */}
           {sorted.length > 1 && (
@@ -1100,6 +1118,74 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
           <LeafDoodle className="rotate-[15deg] scale-x-[-1]" />
         </div>
       </motion.div>
+
+      {/* Lightbox fullscreen */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            onClick={() => setLightbox(false)}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setLightbox(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              aria-label="Tutup"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round">
+                <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Prev */}
+            {sorted.length > 1 && current > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); prev(); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Foto sebelumnya"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+            )}
+
+            {/* Next */}
+            {sorted.length > 1 && current < sorted.length - 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); next(); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Foto selanjutnya"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+            )}
+
+            <motion.img
+              key={sorted[current].id}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              src={sorted[current].imageUrl}
+              alt={`Foto ${current + 1}`}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -80 && current < sorted.length - 1) next();
+                else if (info.offset.x > 80 && current > 0) prev();
+              }}
+            />
+
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+              {current + 1} / {sorted.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
