@@ -962,15 +962,26 @@ function DoodleEvents({ invitation, t }: { invitation: SerializedInvitation; t: 
 
 // ═══════════ GALLERY SUB-COMPONENT ═══════════
 function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"]; t: Translations }) {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
 
   // Hide section entirely when gallery is empty
   if (!gallery || gallery.length === 0) return null;
 
-  // Deterministic rotation based on index (-2 to 2 degrees)
-  const getRotation = (index: number): number => {
-    const seed = ((index * 7 + 3) % 9) - 4; // produces values -4 to 4
-    return (seed / 4) * 2; // normalize to -2 to 2
+  const sorted = [...gallery].sort((a, b) => a.order - b.order);
+
+  const goTo = (index: number, dir: 1 | -1) => {
+    setDirection(dir);
+    setCurrent(index);
+  };
+
+  const prev = () => goTo((current - 1 + sorted.length) % sorted.length, -1);
+  const next = () => goTo((current + 1) % sorted.length, 1);
+
+  const variants = {
+    enter: (dir: number) => ({ x: dir > 0 ? "60%" : "-60%", opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? "-60%" : "60%", opacity: 0 }),
   };
 
   return (
@@ -980,7 +991,7 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="max-w-4xl mx-auto"
+        className="max-w-sm mx-auto"
       >
         {/* Section heading */}
         <div className="flex items-center justify-center gap-2 mb-10 md:mb-14">
@@ -994,54 +1005,94 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
           <DoodleHeart className="opacity-60" />
         </div>
 
-        {/* LeafDoodle accents */}
-        <div className="relative">
-          <LeafDoodle className="absolute -top-6 -left-2 opacity-30 -rotate-12 hidden md:block pointer-events-none" />
-          <LeafDoodle className="absolute -top-6 -right-2 opacity-30 rotate-12 scale-x-[-1] hidden md:block pointer-events-none" />
+        {/* Carousel frame with sketchy doodle border */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="relative"
+        >
+          <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-black">
+            {/* Sketchy SVG border overlay */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none z-10"
+              viewBox="0 0 120 160"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              fill="none"
+              stroke={COLORS.accent}
+              strokeWidth={2}
+            >
+              <path d="M4 4 C30 3, 60 5, 90 4 C105 3, 116 4, 116 4" strokeLinecap="round" />
+              <path d="M116 4 C117 40, 115 80, 116 120 C117 140, 116 156, 116 156" strokeLinecap="round" />
+              <path d="M116 156 C90 157, 60 155, 30 156 C15 157, 4 156, 4 156" strokeLinecap="round" />
+              <path d="M4 156 C3 120, 5 80, 4 40 C3 20, 4 4, 4 4" strokeLinecap="round" />
+            </svg>
 
-          {/* Photo grid: 2 columns mobile, 3 columns ≥768px */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            {gallery.map((photo, index) => (
-              <motion.div
-                key={photo.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="cursor-pointer"
-                style={{ transform: `rotate(${getRotation(index)}deg)` }}
-                onClick={() => setLightboxIndex(index)}
-              >
-                {/* Hand-drawn frame */}
-                <div className="relative p-2 md:p-3">
-                  {/* Sketchy border SVG */}
-                  <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                    viewBox="0 0 120 120"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                    role="presentation"
-                    fill="none"
-                    stroke={COLORS.accent}
-                    strokeWidth={1.5}
-                  >
-                    <path d="M4 4 C20 3, 40 5, 60 4 C80 3, 100 5, 116 4" strokeLinecap="round" />
-                    <path d="M116 4 C117 25, 115 50, 116 75 C117 95, 116 110, 116 116" strokeLinecap="round" />
-                    <path d="M116 116 C100 117, 80 115, 60 116 C40 117, 20 115, 4 116" strokeLinecap="round" />
-                    <path d="M4 116 C3 95, 5 70, 4 45 C3 25, 4 10, 4 4" strokeLinecap="round" />
+            <AnimatePresence custom={direction} initial={false} mode="popLayout">
+              <motion.img
+                key={sorted[current].id}
+                src={sorted[current].imageUrl}
+                alt={`Foto ${current + 1}`}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full object-cover"
+                draggable={false}
+              />
+            </AnimatePresence>
+
+            {/* Navigation buttons */}
+            {sorted.length > 1 && (
+              <>
+                <button
+                  onClick={prev}
+                  aria-label="Foto sebelumnya"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <polyline points="15 18 9 12 15 6" />
                   </svg>
-                  {/* Photo */}
-                  <img
-                    src={photo.imageUrl}
-                    alt={`Gallery photo ${index + 1}`}
-                    loading="lazy"
-                    className="w-full aspect-square object-cover rounded-sm"
-                  />
-                </div>
-              </motion.div>
-            ))}
+                </button>
+                <button
+                  onClick={next}
+                  aria-label="Foto selanjutnya"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
-        </div>
+
+          {/* Dot indicators */}
+          {sorted.length > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              {sorted.map((_, i) => (
+                <button
+                  key={i}
+                  aria-label={`Foto ${i + 1}`}
+                  onClick={() => goTo(i, i > current ? 1 : -1)}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === current
+                      ? "w-6 h-2.5"
+                      : "w-2.5 h-2.5 hover:opacity-70"
+                  }`}
+                  style={{
+                    backgroundColor: i === current ? COLORS.accentDark : COLORS.accent,
+                    opacity: i === current ? 1 : 0.4,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
 
         {/* Leaf doodle accents at bottom */}
         <div className="flex justify-center mt-8 gap-4 opacity-40">
@@ -1049,94 +1100,6 @@ function DoodleGallery({ gallery, t }: { gallery: SerializedInvitation["gallery"
           <LeafDoodle className="rotate-[15deg] scale-x-[-1]" />
         </div>
       </motion.div>
-
-      {/* Full-screen Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-            onClick={() => setLightboxIndex(null)}
-          >
-            {/* Close button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightboxIndex(null);
-              }}
-              className="absolute top-4 right-4 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-              aria-label="Close lightbox"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth={2}
-                strokeLinecap="round"
-                aria-hidden="true"
-                role="presentation"
-              >
-                <path d="M18 6L6 18" />
-                <path d="M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* Previous button */}
-            {lightboxIndex > 0 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                aria-label="Previous photo"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
-              </button>
-            )}
-
-            {/* Next button */}
-            {lightboxIndex < gallery.length - 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                aria-label="Next photo"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
-              </button>
-            )}
-
-            {/* Lightbox image */}
-            <motion.img
-              key={gallery[lightboxIndex].id}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              src={gallery[lightboxIndex].imageUrl}
-              alt={`Gallery photo ${lightboxIndex + 1}`}
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -100 && lightboxIndex < gallery.length - 1) {
-                  setLightboxIndex(lightboxIndex + 1);
-                } else if (info.offset.x > 100 && lightboxIndex > 0) {
-                  setLightboxIndex(lightboxIndex - 1);
-                }
-              }}
-            />
-
-            {/* Photo counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
-              {lightboxIndex + 1} / {gallery.length}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
