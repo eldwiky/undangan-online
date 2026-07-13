@@ -2540,6 +2540,7 @@ function KirimSection({
   const [messageTemplate, setMessageTemplate] = useState(savedTemplate || DEFAULT_MESSAGE_TEMPLATE);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [sendingAll, setSendingAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -2708,6 +2709,16 @@ function KirimSection({
   const sentCount = guests.filter((g) => g.sent).length;
   const totalCount = guests.length;
 
+  // Filter guests by search query
+  const filteredGuests = guests.filter((guest) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      guest.name.toLowerCase().includes(query) ||
+      guest.phone.includes(query)
+    );
+  });
+
   // Preview message
   const previewMessage = messageTemplate
     .replace(/\{nama\}/g, "Budi Santoso")
@@ -2854,6 +2865,34 @@ function KirimSection({
         )}
       </div>
 
+      {/* Search Guests */}
+      {!loadingGuests && guests.length > 0 && (
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Cari nama atau nomor HP tamu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Guest List */}
       {loadingGuests ? (
         <div className="flex items-center justify-center py-8">
@@ -2880,7 +2919,14 @@ function KirimSection({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {guests.map((guest) => (
+                {filteredGuests.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
+                      Tidak ada tamu yang cocok dengan &quot;{searchQuery}&quot;
+                    </td>
+                  </tr>
+                ) : (
+                  filteredGuests.map((guest) => (
                   <tr key={guest.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{guest.name}</td>
                     <td className="px-4 py-3 text-gray-600">+{guest.phone}</td>
@@ -2938,7 +2984,8 @@ function KirimSection({
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
           </div>
