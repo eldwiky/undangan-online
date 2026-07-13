@@ -230,31 +230,29 @@ describe("giftAccountSchema", () => {
 // === sanitizeInput ===
 
 describe("sanitizeInput", () => {
-  it("replaces & with &amp;", () => {
-    expect(sanitizeInput("a & b")).toBe("a &amp; b");
+  it("preserves & character (no encoding)", () => {
+    expect(sanitizeInput("a & b")).toBe("a & b");
   });
 
-  it("replaces < with &lt;", () => {
-    expect(sanitizeInput("<script>")).toBe("&lt;script&gt;");
+  it("strips HTML tags", () => {
+    expect(sanitizeInput("<script>alert('xss')</script>")).toBe("alert('xss')");
   });
 
-  it("replaces > with &gt;", () => {
-    expect(sanitizeInput("a > b")).toBe("a &gt; b");
+  it("strips nested HTML tags", () => {
+    expect(sanitizeInput("<div><b>hello</b></div>")).toBe("hello");
   });
 
-  it('replaces " with &quot;', () => {
-    expect(sanitizeInput('say "hello"')).toBe("say &quot;hello&quot;");
+  it("preserves special characters without encoding", () => {
+    expect(sanitizeInput('say "hello"')).toBe('say "hello"');
   });
 
-  it("replaces ' with &#x27;", () => {
-    expect(sanitizeInput("it's")).toBe("it&#x27;s");
+  it("preserves apostrophes", () => {
+    expect(sanitizeInput("it's")).toBe("it's");
   });
 
-  it("sanitizes a full XSS attack string", () => {
+  it("strips XSS attack tags but keeps text content", () => {
     const input = '<script>alert("xss")</script>';
-    const expected =
-      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;";
-    expect(sanitizeInput(input)).toBe(expected);
+    expect(sanitizeInput(input)).toBe('alert("xss")');
   });
 
   it("leaves safe text unchanged", () => {
@@ -263,6 +261,10 @@ describe("sanitizeInput", () => {
 
   it("handles empty string", () => {
     expect(sanitizeInput("")).toBe("");
+  });
+
+  it("trims whitespace", () => {
+    expect(sanitizeInput("  hello  ")).toBe("hello");
   });
 });
 

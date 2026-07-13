@@ -32,14 +32,24 @@ export const giftAccountSchema = z.object({
 });
 
 // === XSS Sanitization ===
+// React auto-escapes text in JSX, so we only need to strip HTML tags
+// instead of encoding entities (which causes double-encoding like &amp;)
 
 export function sanitizeInput(input: string): string {
   return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
+    .replace(/<[^>]*>/g, "") // Strip HTML tags
+    .trim();
+}
+
+// === HTML Entity Decoding (for legacy data saved with old sanitizer) ===
+
+export function decodeHtmlEntities(input: string): string {
+  return input
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'");
 }
 
 // === File Validation Constants ===

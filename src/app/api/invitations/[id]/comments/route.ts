@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { commentSchema, sanitizeInput } from "@/lib/validators";
+import { commentSchema, sanitizeInput, decodeHtmlEntities } from "@/lib/validators";
 import { checkRateLimit } from "@/lib/rate-limiter";
 
 // Force dynamic - never cache this API
@@ -48,8 +48,15 @@ export async function GET(
 
     const totalPages = Math.ceil(total / pageSize);
 
+    // Decode HTML entities from legacy data saved with old sanitizer
+    const decodedComments = comments.map((comment) => ({
+      ...comment,
+      guestName: decodeHtmlEntities(comment.guestName),
+      message: decodeHtmlEntities(comment.message),
+    }));
+
     const response = NextResponse.json({
-      data: comments,
+      data: decodedComments,
       pagination: {
         page,
         pageSize,
